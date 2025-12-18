@@ -1,3 +1,5 @@
 <Solution>
-  <Project Path="WellInsightEngine.Api.csproj" />
+  <Project Path="WellInsightEngine.Api/WellInsightEngine.Api.csproj" />
+  <Project Path="WellInsightEngine.Core/WellInsightEngine.Core.csproj" />
+  <Project Path="WellInsightEngine.Infrastructure/WellInsightEngine.Infrastructure.csproj" />
 </Solution>

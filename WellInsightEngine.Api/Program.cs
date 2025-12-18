@@ -1,8 +1,9 @@
-var builder = WebApplication.CreateBuilder(args);
+using WellInsightEngine.Infrastructure;
 
+var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-
+builder.Services.AddInfrastructure();
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
