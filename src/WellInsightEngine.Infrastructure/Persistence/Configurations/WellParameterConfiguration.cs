@@ -8,18 +8,15 @@ public sealed class WellParameterConfiguration : IEntityTypeConfiguration<WellPa
 {
     public void Configure(EntityTypeBuilder<WellParameter> e)
     {
-        e.HasKey(x => new { x.WellId, x.ParameterId });
+        e.HasKey(x => x.Id);
 
-        e.HasOne(x => x.Well)
-            .WithMany(x => x.Parameters)
-            .HasForeignKey(x => x.WellId)
-            .OnDelete(DeleteBehavior.Cascade);
+        e.Property(x => x.Name)
+            .HasMaxLength(200)
+            .IsRequired();
 
-        e.HasOne(x => x.Parameter)
-            .WithMany(x => x.Wells)
-            .HasForeignKey(x => x.ParameterId)
-            .OnDelete(DeleteBehavior.Restrict);
+        e.Property(x => x.DataType)
+            .IsRequired();
 
-        e.HasIndex(x => x.ParameterId);
+        e.HasIndex(x => new { x.WellId, x.Name });
     }
 }

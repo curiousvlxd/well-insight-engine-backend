@@ -1,6 +1,4 @@
-﻿using WellInsightEngine.Core.Enums;
-
-namespace WellInsightEngine.Core.Entities;
+﻿namespace WellInsightEngine.Core.Entities.Insight;
 
 public sealed class Insight
 {
@@ -9,7 +7,6 @@ public sealed class Insight
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset From { get; set; }
     public DateTimeOffset To { get; set; }
-    public InsightStatus Status { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Summary { get; set; } = string.Empty;
     public string Payload { get; set; } = string.Empty;

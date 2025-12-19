@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using WellInsightEngine.Core.Entities;
+using WellInsightEngine.Core.Entities.Insight;
 
 namespace WellInsightEngine.Infrastructure.Persistence.Configurations;
 
@@ -13,11 +14,8 @@ public sealed class InsightConfiguration : IEntityTypeConfiguration<Insight>
         e.Property(x => x.CreatedAt).IsRequired();
         e.Property(x => x.From).IsRequired();
         e.Property(x => x.To).IsRequired();
-
-        e.Property(x => x.Status).HasConversion<short>().IsRequired();
-
-        e.Property(x => x.Title).HasMaxLength(300).IsRequired();
-        e.Property(x => x.Summary).HasMaxLength(8000).IsRequired();
+        e.Property(x => x.Title).IsRequired();
+        e.Property(x => x.Summary).IsRequired();
         e.Property(x => x.Payload).HasColumnType("jsonb").IsRequired();
 
         e.HasOne<Well>()

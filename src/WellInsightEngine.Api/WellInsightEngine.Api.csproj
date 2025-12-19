@@ -5,6 +5,7 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <UserSecretsId>69253f91-b5c7-4a88-82d1-8cf4c5132209</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
@@ -16,6 +17,15 @@
       <Content Include="..\..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.1">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Scalar.AspNetCore" Version="2.11.8" />
     </ItemGroup>
 
 </Project>

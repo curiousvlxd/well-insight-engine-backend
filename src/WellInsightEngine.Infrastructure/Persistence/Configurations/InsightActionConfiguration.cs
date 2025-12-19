@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using WellInsightEngine.Core.Entities;
+using WellInsightEngine.Core.Entities.Insight;
 
 namespace WellInsightEngine.Infrastructure.Persistence.Configurations;
 

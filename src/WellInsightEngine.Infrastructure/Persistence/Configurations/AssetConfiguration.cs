@@ -21,10 +21,8 @@ public sealed class AssetConfiguration : IEntityTypeConfiguration<Asset>
 
         e.HasMany(x => x.Wells)
             .WithOne(x => x.Asset)
-            .HasForeignKey(x => x.AssetId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .HasForeignKey(x => x.AssetId);
 
-        e.HasIndex(x => x.ParentId);
         e.HasIndex(x => new { x.ParentId, x.Name });
     }
 }
