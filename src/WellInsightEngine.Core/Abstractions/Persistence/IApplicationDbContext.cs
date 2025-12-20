@@ -14,6 +14,6 @@ public interface IApplicationDbContext
     IQueryable<WellAction> WellActions { get; }
     IQueryable<Insight> Insights { get; }
     IQueryable<InsightAction> InsightActions { get; }
-
+    void Add<TEntity>(TEntity entity) where TEntity : class;
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }

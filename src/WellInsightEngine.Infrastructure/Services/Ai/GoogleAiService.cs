@@ -12,6 +12,7 @@ namespace WellInsightEngine.Infrastructure.Services.Ai;
 public sealed class GoogleAiService(Client client, IOptions<AiOptions> options) : IGoogleAiService
 {   
     private readonly AiOptions _options = options.Value;
+    private readonly JsonSerializerOptions _serializerOptions =  new(JsonSerializerDefaults.Web);
 
     public async Task<AiResponse> GenerateAsync(string prompt, CancellationToken ct)
     {
@@ -28,7 +29,7 @@ public sealed class GoogleAiService(Client client, IOptions<AiOptions> options) 
 
         try
         {
-            return JsonSerializer.Deserialize<AiResponse>(text, new JsonSerializerOptions(JsonSerializerDefaults.Web)) ?? new AiResponse();
+            return JsonSerializer.Deserialize<AiResponse>(text) ?? new AiResponse();
         }
         catch
         {
@@ -39,6 +40,6 @@ public sealed class GoogleAiService(Client client, IOptions<AiOptions> options) 
 
 public sealed class DisabledGoogleAiService : IGoogleAiService
 {
-    public Task<AiResponse> GenerateAsync(string prompt, CancellationToken ct)
+    public Task<AiResponse> GenerateAsync(string prompt, CancellationToken cancellationToken)
         => Task.FromResult(new AiResponse());
 }

@@ -14,7 +14,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<WellAction> WellActions => Set<WellAction>();
     public DbSet<Insight> Insights => Set<Insight>();
     public DbSet<InsightAction> InsightActions => Set<InsightAction>();
-
+    void IApplicationDbContext.Add<TEntity>(TEntity entity) => Set<TEntity>().Add(entity);
     IQueryable<Asset> IApplicationDbContext.Assets => Assets;
     IQueryable<Well> IApplicationDbContext.Wells => Wells;
     IQueryable<Parameter> IApplicationDbContext.Parameters => Parameters;

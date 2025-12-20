@@ -30,7 +30,7 @@ public enum GroupingInterval
     [Description("1d")]
     OneDay,
 
-    [Description("7d")]
+    [Description("1w")]
     OneWeek,
 
     [Description("1mo")]

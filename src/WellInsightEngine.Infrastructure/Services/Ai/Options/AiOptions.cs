@@ -2,7 +2,8 @@
 
 public sealed record AiOptions
 {
-    public string ApiKey { get; init; } = string.Empty;
+    public string ProjectId { get; init; }
+    public string Location { get; init; }
     public string Model { get; init; } = "gemini-2.5-flash-lite";
     public double Temperature { get; init; } = 0.2;
     public int MaxOutputTokens { get; init; } = 900;

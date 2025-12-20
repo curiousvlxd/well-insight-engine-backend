@@ -1,4 +1,5 @@
-﻿using Google.GenAI;
+﻿using Google.Apis.Auth.OAuth2;
+using Google.GenAI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using WellInsightEngine.Core.Abstractions;
@@ -20,7 +21,7 @@ public static class DependencyInjection
             return services;
         }
         
-        services.AddSingleton<Client>(_ => new Client(apiKey: options.ApiKey));
+        services.AddSingleton<Client>(_ => new Client(vertexAI: true, project: options.ProjectId, location: options.Location, credential: GoogleCredential.GetApplicationDefault()));
         services.AddScoped<IGoogleAiService, GoogleAiService>();
         return services;
     }
