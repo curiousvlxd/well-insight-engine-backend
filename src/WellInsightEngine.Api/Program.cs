@@ -11,21 +11,18 @@ builder.Services.AddOpenApi(options => options.AddDocumentTransformer<BearerSecu
 builder.Services.AddInfrastructure();
 builder.Services.AddCore();
 
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(policy =>
-    {
-        policy
-            .AllowAnyOrigin()
-            .AllowAnyHeader()
-            .AllowAnyMethod();
-    });
-});
-
 var app = builder.Build();
 
 app.UseHttpsRedirection();
-app.UseCors();
+app.UseCors(policy =>
+{
+    policy
+        .SetIsOriginAllowed(_ => true)
+        .AllowAnyHeader()
+        .AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowCredentials();
+});
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
