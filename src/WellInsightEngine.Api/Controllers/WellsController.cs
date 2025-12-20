@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WellInsightEngine.Core.Features.GetWell;
+using WellInsightEngine.Core.Features.Wells.GetWell;
 using WellInsightEngine.Infrastructure.Services.Auth;
 
 namespace WellInsightEngine.Api.Controllers;
@@ -9,7 +9,7 @@ namespace WellInsightEngine.Api.Controllers;
 [Route("[controller]")]
 public sealed class WellsController(GetWellFeature feature) : ControllerBase
 {
-    [HttpGet("{wellId:guid}")]
+    [HttpGet("[action]:{wellId:guid}")]
     [Authorize(Policy = Policies.ByEmail)]
     public async Task<IActionResult> GetWell(Guid wellId, CancellationToken ct)
     {

@@ -1,4 +1,4 @@
-﻿namespace WellInsightEngine.Core.Features.GetAssets;
+﻿namespace WellInsightEngine.Core.Features.Assets.GetAssets;
 
 public sealed class GetAssetsResponse
 {

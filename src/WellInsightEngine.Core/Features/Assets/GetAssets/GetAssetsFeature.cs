@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using WellInsightEngine.Core.Abstractions.Persistence;
 
-namespace WellInsightEngine.Core.Features.GetAssets;
+namespace WellInsightEngine.Core.Features.Assets.GetAssets;
 
 public sealed class GetAssetsFeature(IApplicationDbContext context)
 {

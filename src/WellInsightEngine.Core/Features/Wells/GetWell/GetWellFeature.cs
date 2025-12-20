@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using WellInsightEngine.Core.Abstractions.Persistence;
 
-namespace WellInsightEngine.Core.Features.GetWell;
+namespace WellInsightEngine.Core.Features.Wells.GetWell;
 
 public sealed class GetWellFeature(IApplicationDbContext context)
 {

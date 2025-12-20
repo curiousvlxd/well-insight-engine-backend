@@ -7,7 +7,5 @@ public enum AggregationType
     Min = 2,
     Max = 3,
     Sum = 4,
-    Last = 5,
-    First = 6,
     Mode = 7
 }

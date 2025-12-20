@@ -1,7 +1,7 @@
 ﻿using Riok.Mapperly.Abstractions;
 using WellInsightEngine.Core.Entities;
 
-namespace WellInsightEngine.Core.Features.GetWell;
+namespace WellInsightEngine.Core.Features.Wells.GetWell;
 
 [Mapper]
 public static partial class GetWellMapper

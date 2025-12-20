@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using WellInsightEngine.Core.Abstractions.Persistence;
 using WellInsightEngine.Core.Entities;
 using WellInsightEngine.Core.Entities.Insight;
 

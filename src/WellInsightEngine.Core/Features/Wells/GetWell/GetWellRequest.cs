@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace WellInsightEngine.Core.Features.GetWell;
+namespace WellInsightEngine.Core.Features.Wells.GetWell;
 
 public sealed record GetWellRequest
 {

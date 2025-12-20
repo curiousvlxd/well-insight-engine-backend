@@ -1,6 +1,6 @@
 ﻿using WellInsightEngine.Core.Enums;
 
-namespace WellInsightEngine.Core.Features.GetWell;
+namespace WellInsightEngine.Core.Features.Wells.GetWell;
 
 public sealed record GetWellResponse
 {

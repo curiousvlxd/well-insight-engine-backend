@@ -1,6 +1,8 @@
 ﻿using WellInsightEngine.Core.Entities;
 using WellInsightEngine.Core.Entities.Insight;
 
+namespace WellInsightEngine.Core.Abstractions.Persistence;
+
 public interface IApplicationDbContext
 {
     IQueryable<Asset> Assets { get; }

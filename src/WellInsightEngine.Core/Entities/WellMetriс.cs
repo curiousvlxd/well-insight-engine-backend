@@ -1,9 +1,19 @@
-﻿namespace WellInsightEngine.Core.Entities;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
-public sealed record WellMetricRow
+namespace WellInsightEngine.Core.Entities;
+
+[Table("well_metrics")]
+public sealed class WellMetric
 {
+    [Column("time")]
+    public DateTimeOffset Time { get; init; }
+
+    [Column("well_id")]
     public Guid WellId { get; init; }
+
+    [Column("parameter_id")]
     public Guid ParameterId { get; init; }
-    public DateTimeOffset Timestamp { get; init; }
+
+    [Column("value")]
     public string Value { get; init; } = string.Empty;
 }

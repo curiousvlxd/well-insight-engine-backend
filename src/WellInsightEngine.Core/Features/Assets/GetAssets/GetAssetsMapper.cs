@@ -1,7 +1,7 @@
 ﻿using Riok.Mapperly.Abstractions;
 using WellInsightEngine.Core.Entities;
 
-namespace WellInsightEngine.Core.Features.GetAssets;
+namespace WellInsightEngine.Core.Features.Assets.GetAssets;
 
 [Mapper]
 public static partial class GetAssetsMapper
