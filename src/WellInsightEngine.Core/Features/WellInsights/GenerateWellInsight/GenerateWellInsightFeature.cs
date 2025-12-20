@@ -1,15 +1,16 @@
 ﻿using System.Globalization;
-using System.Text.Json;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
 using WellInsightEngine.Core.Abstractions.Persistence;
 using WellInsightEngine.Core.Abstractions.Services.Ai;
 using WellInsightEngine.Core.Entities;
-using WellInsightEngine.Core.Entities.Insight;
-using WellInsightEngine.Core.Entities.Insight.Payload;
+using WellInsightEngine.Core.Entities.WellInsight;
+using WellInsightEngine.Core.Entities.WellInsight.Payload;
 using WellInsightEngine.Core.Enums;
+using WellInsightEngine.Core.Extensions;
 using WellInsightEngine.Core.Features.WellInsights.GenerateWellInsight.Ai;
 using WellInsightEngine.Core.Features.WellMetrics;
+using WellInsightAction = WellInsightEngine.Core.Entities.WellInsightAction;
 
 namespace WellInsightEngine.Core.Features.WellInsights.GenerateWellInsight;
 
@@ -18,124 +19,62 @@ public sealed class GenerateWellInsightFeature(
     IApplicationDbContext context,
     IGoogleAiService ai)
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
-
-    public async Task<GenerateWellInsightResponse> Handle(GenerateWellInsightRequest request, CancellationToken ct)
+    public async Task<GenerateWellInsightResponse> Handle(GenerateWellInsightRequest request, CancellationToken cancellation)
     {
         var fromUtc = request.From.ToUniversalTime();
         var toUtc = request.To.ToUniversalTime();
-
-        var parameters = await LoadParametersAsync(request.ParameterIds, ct);
-        var actions = await LoadActionsAsync(request.WellId, fromUtc, toUtc, ct);
-
+        var well = await LoadWellAsync(request.WellId, cancellation);
+        var parameterMap = await LoadParametersAsync(request.ParameterIds, cancellation);
+        var actions = await LoadActionsAsync(request.WellId, fromUtc, toUtc, cancellation);
         var interval = WellInsightRules.ChooseInterval(fromUtc, toUtc, request.MaxPointsPerSeries);
-        if (!WellMetricsAggregations.Map.TryGetValue(interval, out var view))
-            throw new InvalidOperationException($"Unsupported interval: {interval}");
-
-        var series = await FetchSeriesAsync(view, request.WellId, request.ParameterIds, fromUtc, toUtc, parameters, ct);
-
-        var payload = new InsightPayload
-        {
-            Series = series,
-            Events = actions.Select(ToEvent).ToList(),
-            Kpis = BuildKpis(series)
-        };
-
-        var aiResponse = await GenerateAiAsync(request.WellId, fromUtc, toUtc, interval, payload, ct);
-
-        var insight = new Insight
-        {
-            Id = Guid.NewGuid(),
-            WellId = request.WellId,
-            CreatedAt = DateTimeOffset.UtcNow,
-            From = fromUtc,
-            To = toUtc,
-            Title = aiResponse.Title,
-            Summary = aiResponse.Summary,
-            Payload = JsonSerializer.Serialize(payload, JsonOptions)
-        };
-
+        var aggregate = WellInsightKnowledge.ResolveAggregate(interval);
+        var series = await FetchSeriesAsync(aggregate, request.WellId, request.ParameterIds, fromUtc, toUtc, parameterMap, cancellation);
+        var payload = BuildPayload(series);
+        var aiEnvelope = await GenerateAiAsync(well, fromUtc, toUtc, interval, payload, actions, cancellation);
+        var insight = WellInsight.Create(well.Id, fromUtc, toUtc, aiEnvelope.Title, aiEnvelope.Summary, aiEnvelope.Highlights, aiEnvelope.Suspicions, aiEnvelope.RecommendedActions, payload);
         context.Add(insight);
+        var insightActions = CreateInsightActions(insight.Id, actions);
+        
+        if (insightActions.Count > 0) context.AddRange(insightActions);
 
-        foreach (var a in actions)
-        {
-            context.Add(new InsightAction
-            {
-                InsightId = insight.Id,
-                WellActionId = a.Id
-            });
-        }
-
-        await context.SaveChangesAsync(ct);
-
-        return new GenerateWellInsightResponse
-        {
-            InsightId = insight.Id,
-            WellId = insight.WellId,
-            CreatedAt = insight.CreatedAt,
-            From = insight.From,
-            To = insight.To,
-            Title = insight.Title,
-            Summary = insight.Summary,
-            Highlights = aiResponse.Highlights,
-            Suspicions = aiResponse.Suspicions,
-            RecommendedActions = aiResponse.RecommendedActions,
-            Payload = payload
-        };
+        await context.SaveChangesAsync(cancellation);
+        return GenerateWellInsightResponse.Create(insight);
     }
 
-    private async Task<IReadOnlyDictionary<Guid, ParameterMeta>> LoadParametersAsync(Guid[] parameterIds, CancellationToken ct)
+    private async Task<Well> LoadWellAsync(Guid wellId, CancellationToken ct)
+        => await context.Wells
+            .Where(w => w.Id == wellId)
+            .Include(w => w.Asset)
+            .FirstOrDefaultAsync(ct)
+            ?? throw new InvalidOperationException($"Cannot find well: {wellId}");
+
+    private async Task<IReadOnlyDictionary<Guid, Parameter>> LoadParametersAsync(IEnumerable<Guid> parameterIds, CancellationToken ct)
     {
-        var ids = parameterIds.AsEnumerable();
-
         var list = await context.Parameters
-            .Where(p => ids.Contains(p.Id))
-            .Select(p => new ParameterMeta
-            {
-                Id = p.Id,
-                Name = p.Name,
-                DataType = p.DataType
-            })
+            .Where(p => parameterIds.Contains(p.Id))
             .ToListAsync(ct);
-
         return list.ToDictionary(x => x.Id, x => x);
     }
 
-    private async Task<IReadOnlyList<ActionRow>> LoadActionsAsync(Guid wellId, DateTimeOffset fromUtc, DateTimeOffset toUtc, CancellationToken ct)
+    private async Task<IReadOnlyList<WellAction>> LoadActionsAsync(Guid wellId, DateTimeOffset fromUtc, DateTimeOffset toUtc, CancellationToken ct)
         => await context.WellActions
             .Where(a => a.WellId == wellId && a.Timestamp >= fromUtc && a.Timestamp <= toUtc)
             .OrderBy(a => a.Timestamp)
-            .Select(a => new ActionRow
-            {
-                Id = a.Id,
-                Timestamp = a.Timestamp,
-                Title = a.Title,
-                Details = a.Details,
-                Source = a.Source
-            })
             .ToListAsync(ct);
 
-    private async Task<IReadOnlyList<InsightSeries>> FetchSeriesAsync(
-        string view,
-        Guid wellId,
-        Guid[] parameterIds,
-        DateTimeOffset fromUtc,
-        DateTimeOffset toUtc,
-        IReadOnlyDictionary<Guid, ParameterMeta> parameterMap,
-        CancellationToken ct)
+    private async Task<IReadOnlyList<WellInsightParameter>> FetchSeriesAsync(string aggregate, Guid wellId, Guid[] parameterIds, DateTimeOffset fromUtc, DateTimeOffset toUtc, IReadOnlyDictionary<Guid, Parameter> parameterMap, CancellationToken cancellation)
     {
         using var conn = sqlFactory.Create();
 
         var sql = $"""
                   SELECT
-                    time AS "Time",
-                    well_id AS "WellId",
-                    parameter_id AS "ParameterId",
-                    avg_value AS "AvgValue",
-                    min_value AS "MinValue",
-                    max_value AS "MaxValue",
-                    mode_value AS "ModeValue"
-                  FROM {view}
+                    time,
+                    parameter_id,
+                    avg_value,
+                    min_value,
+                    max_value,
+                    mode_value
+                  FROM {aggregate}
                   WHERE well_id = @WellId
                     AND parameter_id = ANY(@ParameterIds)
                     AND time >= @From
@@ -143,169 +82,93 @@ public sealed class GenerateWellInsightFeature(
                   ORDER BY time
                   """;
 
-        var command = new CommandDefinition(sql, new
-        {
-            WellId = wellId,
-            ParameterIds = parameterIds,
-            From = fromUtc,
-            To = toUtc
-        }, cancellationToken: ct);
-
-        var rows = (await conn.QueryAsync<MetricAggRow>(command)).AsList();
-
-        var grouped = rows
+        var command = new CommandDefinition(sql, new { WellId = wellId, ParameterIds = parameterIds, From = fromUtc, To = toUtc }, cancellationToken: cancellation);
+        var aggregations = (await conn.QueryAsync<WellMetricAggregation>(command)).AsList();
+        var byParameter = aggregations
             .GroupBy(r => r.ParameterId)
             .ToDictionary(g => g.Key, g => g.OrderBy(x => x.Time).ToList());
+        var result = new List<WellInsightParameter>(parameterIds.Length);
 
-        var result = new List<InsightSeries>(parameterIds.Length);
-
-        foreach (var pid in parameterIds)
+        foreach (var parameterId in parameterIds)
         {
-            if (!parameterMap.TryGetValue(pid, out var meta))
+            if (!parameterMap.TryGetValue(parameterId, out var meta))
                 continue;
 
-            grouped.TryGetValue(pid, out var pointsRaw);
-            pointsRaw ??= [];
-
-            var aggregation = WellInsightRules.ResolveAggregation(meta.DataType);
-            if (!WellInsightKnowledge.SupportsAggregation(meta.DataType, aggregation))
-                aggregation = AggregationType.Mode;
-
-            var points = pointsRaw
-                .Select(r => new InsightPoint
-                {
-                    Timestamp = r.Time,
-                    Value = FormatValue(meta.DataType, aggregation, r)
-                })
+            byParameter.TryGetValue(parameterId, out var metrics);
+            metrics ??= [];
+            var requested = WellInsightKnowledge.DefaultAggregation(meta.DataType);
+            var aggregation = WellInsightKnowledge.ResolveAggregation(meta.DataType, requested);
+            var insightMetrics = metrics
+                .Select(r => WellInsightMetric.Create(r.Time, WellInsightKnowledge.FormatValue(meta.DataType, aggregation, r)))
                 .ToList();
-
-            result.Add(new InsightSeries
-            {
-                ParameterId = pid,
-                Name = meta.Name,
-                DataType = meta.DataType,
-                Points = points,
-                Aggregation = aggregation
-            });
+            result.Add(WellInsightParameter.Create(parameterId, meta.Name, meta.DataType, insightMetrics, aggregation));
         }
 
         return result;
     }
 
-    private static string FormatValue(ParameterDataType dataType, AggregationType aggregation, MetricAggRow row)
+    private static WellInsightPayload BuildPayload(IReadOnlyList<WellInsightParameter> parameters) => new()
     {
-        if (dataType == ParameterDataType.Categorical || aggregation == AggregationType.Mode)
-            return row.ModeValue ?? string.Empty;
+        Parameters = parameters,
+        Kpis = BuildKpis(parameters)
+    };
 
-        var value = aggregation switch
-        {
-            AggregationType.Min => row.MinValue,
-            AggregationType.Max => row.MaxValue,
-            _ => row.AvgValue
-        };
 
-        return value?.ToString(CultureInfo.InvariantCulture) ?? "0";
-    }
-
-    private static IReadOnlyList<InsightKpi> BuildKpis(IReadOnlyList<InsightSeries> series)
+    private static List<WellInsightKpi> BuildKpis(
+        IReadOnlyList<WellInsightParameter> parameters)
     {
-        var kpis = new List<InsightKpi>();
+        var result = new List<WellInsightKpi>();
 
-        foreach (var s in series)
+        foreach (var p in parameters)
         {
-            if (s.Points.Count == 0)
+            if (p.Metrics.Count == 0)
                 continue;
 
-            var first = s.Points[0].Value;
-            var last = s.Points[^1].Value;
+            var first = p.Metrics[0].Value;
+            var last = p.Metrics[^1].Value;
+            string? change = null;
 
-            string? delta = null;
-
-            if (s.DataType != ParameterDataType.Categorical
+            if (p.DataType is not ParameterDataType.Categorical
                 && decimal.TryParse(first, NumberStyles.Any, CultureInfo.InvariantCulture, out var f)
                 && decimal.TryParse(last, NumberStyles.Any, CultureInfo.InvariantCulture, out var l))
-            {
-                delta = (l - f).ToString(CultureInfo.InvariantCulture);
-            }
+                change = (l - f).ToString(CultureInfo.InvariantCulture);
 
-            kpis.Add(new InsightKpi
-            {
-                Code = $"last:{s.ParameterId}",
-                Label = $"{s.Name} (last)",
-                Value = last,
-                Delta = delta
-            });
+            result.Add(WellInsightKpi.Create(p.ParameterId, WellInsightMetricKind.Last, p.Name, last, change));
         }
 
-        return kpis;
+        return result;
     }
 
-    private async Task<WellInsightAiEnvelope> GenerateAiAsync(
-        Guid wellId,
-        DateTimeOffset fromUtc,
-        DateTimeOffset toUtc,
-        GroupingInterval interval,
-        InsightPayload payload,
-        CancellationToken ct)
+    private async Task<WellInsightAiEnvelope> GenerateAiAsync(Well well, DateTimeOffset fromUtc, DateTimeOffset toUtc, GroupingInterval interval, WellInsightPayload payload, IReadOnlyList<WellAction> actions, CancellationToken cancellation)
     {
-        var prompt = WellInsightPromptBuilder.Build(wellId, fromUtc, toUtc, interval, payload);
-        var r = await ai.GenerateAsync(prompt, ct);
-
-        var title = string.IsNullOrWhiteSpace(r.Title) ? $"Insight ({interval})" : r.Title.Trim();
-        var summary = string.IsNullOrWhiteSpace(r.Summary) ? "Generated insight." : r.Summary.Trim();
-
-        return new WellInsightAiEnvelope
+        var prompt = WellInsightPromptBuilder.Build(well.Asset?.Name, well.Name, fromUtc, toUtc, interval, payload, actions);
+        var aiResponse = await ai.GenerateAsync(prompt, cancellation);
+        var envelope = GenerateWellInsightMapper.ToEnvelope(aiResponse);
+        return envelope with
         {
-            Title = title,
-            Summary = summary,
-            Highlights = r.Highlights ?? [],
-            Suspicions = r.Suspicions ?? [],
-            RecommendedActions = r.RecommendedActions ?? []
+            Title = Safe(envelope.Title) ?? BuildFallbackTitle(well, interval),
+            Summary = Safe(envelope.Summary) ?? "Згенерований інсайт на основі агрегацій та подій."
         };
     }
 
-    private static InsightEvent ToEvent(ActionRow a)
-        => new()
-        {
-            Timestamp = a.Timestamp,
-            Title = a.Title,
-            Details = a.Details,
-            Source = a.Source
-        };
 
-    private sealed class MetricAggRow
+    private static string BuildFallbackTitle(Well well, GroupingInterval interval)
     {
-        public DateTimeOffset Time { get; init; }
-        public Guid WellId { get; init; }
-        public Guid ParameterId { get; init; }
-        public decimal? AvgValue { get; init; }
-        public decimal? MinValue { get; init; }
-        public decimal? MaxValue { get; init; }
-        public string? ModeValue { get; init; }
+        var asset = string.IsNullOrWhiteSpace(well.Asset?.Name) ? null : well.Asset!.Name.Trim();
+        var description = interval.GetDescription();
+        return asset is null
+            ? $"Інсайт: {well.Name} ({description})"
+            : $"Інсайт: {well.Name} | Ассет {asset} ({description})";
     }
 
-    private sealed class ParameterMeta
+    private static List<WellInsightAction> CreateInsightActions(Guid insightId, IReadOnlyList<WellAction> actions)
     {
-        public Guid Id { get; init; }
-        public string Name { get; init; } = string.Empty;
-        public ParameterDataType DataType { get; init; }
+        if (actions.Count == 0) return [];
+
+        var list = new List<WellInsightAction>(actions.Count);
+        list.AddRange(actions.Select(a => WellInsightAction.Create(insightId, a.Id)));
+        return list;
     }
 
-    private sealed class ActionRow
-    {
-        public Guid Id { get; init; }
-        public DateTimeOffset Timestamp { get; init; }
-        public string Title { get; init; } = string.Empty;
-        public string Details { get; init; } = string.Empty;
-        public WellActionSource Source { get; init; }
-    }
-
-    private sealed class WellInsightAiEnvelope
-    {
-        public string Title { get; init; } = string.Empty;
-        public string Summary { get; init; } = string.Empty;
-        public string[] Highlights { get; init; } = [];
-        public string[] Suspicions { get; init; } = [];
-        public string[] RecommendedActions { get; init; } = [];
-    }
+    private static string? Safe(string? s) => string.IsNullOrWhiteSpace(s) ? null : s.Trim();
 }

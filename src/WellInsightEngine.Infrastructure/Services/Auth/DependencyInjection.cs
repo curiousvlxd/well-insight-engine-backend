@@ -4,8 +4,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using WellInsightEngine.Infrastructure.Services.Auth;
 using WellInsightEngine.Infrastructure.Services.Auth.Options;
+
+namespace WellInsightEngine.Infrastructure.Services.Auth;
 
 public static class AuthenticationDependencyInjection
 {

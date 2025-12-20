@@ -15,8 +15,6 @@ public sealed class FilterWellActionsRequest : IValidatableObject
     public DateTimeOffset To { get; init; }
 
     public OffsetPagination Pagination { get; init; } = new();
-    public DateTimeOffset FromUtc => From.ToUniversalTime();
-    public DateTimeOffset ToUtc => To.ToUniversalTime();
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {

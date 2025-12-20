@@ -1,4 +1,6 @@
-﻿using WellInsightEngine.Core.Entities.Insight.Payload;
+﻿using WellInsightEngine.Core.Entities.WellInsight;
+using WellInsightEngine.Core.Entities.WellInsight.Payload;
+using WellInsightEngine.Core.Features.WellInsights.GenerateWellInsight.Ai;
 
 namespace WellInsightEngine.Core.Features.WellInsights.GenerateWellInsight;
 
@@ -11,8 +13,24 @@ public sealed class GenerateWellInsightResponse
     public required DateTimeOffset To { get; init; }
     public required string Title { get; init; }
     public required string Summary { get; init; }
-    public required InsightPayload Payload { get; init; }
+    public required WellInsightPayload Payload { get; init; }
     public required IReadOnlyList<string> Highlights { get; init; }
     public required IReadOnlyList<string> Suspicions { get; init; }
     public required IReadOnlyList<string> RecommendedActions { get; init; }
+    
+    public static GenerateWellInsightResponse Create(WellInsight insight)
+        => new()
+        {
+            InsightId = insight.Id,
+            WellId = insight.WellId,
+            CreatedAt = insight.CreatedAt,
+            From = insight.From,
+            To = insight.To,
+            Title = insight.Title,
+            Summary = insight.Summary,
+            Payload = insight.Payload,
+            Highlights = insight.Highlights,
+            Suspicions = insight.Suspicions,
+            RecommendedActions = insight.RecommendedActions
+        };
 }

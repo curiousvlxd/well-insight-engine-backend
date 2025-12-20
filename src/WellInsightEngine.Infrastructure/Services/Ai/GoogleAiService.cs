@@ -12,7 +12,12 @@ namespace WellInsightEngine.Infrastructure.Services.Ai;
 public sealed class GoogleAiService(Client client, IOptions<AiOptions> options) : IGoogleAiService
 {   
     private readonly AiOptions _options = options.Value;
-    private readonly JsonSerializerOptions _serializerOptions =  new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
+    {
+        PropertyNameCaseInsensitive = true,
+        ReadCommentHandling = JsonCommentHandling.Skip,
+        AllowTrailingCommas = true
+    };
 
     public async Task<AiResponse> GenerateAsync(string prompt, CancellationToken ct)
     {
@@ -24,12 +29,12 @@ public sealed class GoogleAiService(Client client, IOptions<AiOptions> options) 
         var response = await client.Models.GenerateContentAsync(model: _options.Model, contents: prompt, config: config);
         var text = response.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text;
 
-        if (string.IsNullOrWhiteSpace(text))
+            if (string.IsNullOrWhiteSpace(text))
             return new AiResponse();
 
         try
         {
-            return JsonSerializer.Deserialize<AiResponse>(text) ?? new AiResponse();
+            return JsonSerializer.Deserialize<AiResponse>(text, JsonOptions) ?? new AiResponse();
         }
         catch
         {

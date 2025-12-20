@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WellInsightEngine.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using WellInsightEngine.Infrastructure.Persistence;
 namespace WellInsightEngine.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251220213540_RenameInsightsToWellInsights")]
+    partial class RenameInsightsToWellInsights
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -171,9 +174,9 @@ namespace WellInsightEngine.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("from");
 
-                    b.Property<string>("Highlights")
+                    b.PrimitiveCollection<string[]>("Highlights")
                         .IsRequired()
-                        .HasColumnType("jsonb")
+                        .HasColumnType("text[]")
                         .HasColumnName("highlights");
 
                     b.Property<string>("Payload")
@@ -181,9 +184,9 @@ namespace WellInsightEngine.Infrastructure.Migrations
                         .HasColumnType("jsonb")
                         .HasColumnName("payload");
 
-                    b.Property<string>("RecommendedActions")
+                    b.PrimitiveCollection<string[]>("RecommendedActions")
                         .IsRequired()
-                        .HasColumnType("jsonb")
+                        .HasColumnType("text[]")
                         .HasColumnName("recommended_actions");
 
                     b.Property<string>("Summary")
@@ -191,9 +194,9 @@ namespace WellInsightEngine.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("summary");
 
-                    b.Property<string>("Suspicions")
+                    b.PrimitiveCollection<string[]>("Suspicions")
                         .IsRequired()
-                        .HasColumnType("jsonb")
+                        .HasColumnType("text[]")
                         .HasColumnName("suspicions");
 
                     b.Property<string>("Title")

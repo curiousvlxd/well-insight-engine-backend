@@ -15,6 +15,7 @@ public static class DependencyInjection
     {   
         Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
         SqlColumnMapper.Register<WellMetric>();
+        SqlColumnMapper.Register<WellMetricAggregation>();
         services.ConfigureOptions<DatabaseOptionsSetup>();
         services.AddDbContext<ApplicationDbContext>((sp, o) =>
         {

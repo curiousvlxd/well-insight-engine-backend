@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Infrastructure;
 using WellInsightEngine.Core.Entities;
-using WellInsightEngine.Core.Entities.Insight;
+using WellInsightEngine.Core.Entities.WellInsight;
 
 namespace WellInsightEngine.Core.Abstractions.Persistence;
 
@@ -12,8 +12,9 @@ public interface IApplicationDbContext
     DatabaseFacade Database { get; }
     IQueryable<WellParameter> WellParameters { get; }
     IQueryable<WellAction> WellActions { get; }
-    IQueryable<Insight> Insights { get; }
-    IQueryable<InsightAction> InsightActions { get; }
+    IQueryable<WellInsight> WellInsights { get; }
+    IQueryable<WellInsightAction> InsightActions { get; }
     void Add<TEntity>(TEntity entity) where TEntity : class;
+    void AddRange<TEntity>(List<TEntity> entitis) where TEntity : class;
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }

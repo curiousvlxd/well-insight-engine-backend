@@ -8,13 +8,15 @@ public sealed class FilterWellActionsFeature(IApplicationDbContext context)
 {
     public async Task<FilterWellActionsResponse> Handle(FilterWellActionsRequest request, CancellationToken cancellation)
     {
+        var fromUtc = request.From.ToUniversalTime();
+        var toUtc = request.To.ToUniversalTime();
         var query =
             context.WellActions
                 .AsNoTracking()
                 .Where(x =>
                     x.WellId == request.WellId &&
-                    x.Timestamp >= request.FromUtc &&
-                    x.Timestamp <= request.ToUtc)
+                    x.Timestamp >= fromUtc &&
+                    x.Timestamp <= toUtc)
                 .OrderByDescending(x => x.Timestamp)
                 .ProjectToResponse();
         var paged = await query.ToOffsetPagedListAsync(request.Pagination, cancellation);
