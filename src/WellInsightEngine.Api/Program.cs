@@ -28,8 +28,7 @@ app.UseCors(policy =>
         .SetIsOriginAllowed(_ => true)
         .AllowAnyHeader()
         .AllowAnyOrigin()
-        .AllowAnyMethod()
-        .AllowCredentials();
+        .AllowAnyMethod();
 });
 app.UseAuthentication();
 app.UseAuthorization();
