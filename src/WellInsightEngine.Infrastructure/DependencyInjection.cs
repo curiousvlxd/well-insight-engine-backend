@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using WellInsightEngine.Infrastructure.Persistence;
 using WellInsightEngine.Infrastructure.Services.Ai;
+using WellInsightEngine.Infrastructure.Services.Auth;
 
 namespace WellInsightEngine.Infrastructure;
 
@@ -10,6 +11,7 @@ public static class DependencyInjection
     {
         services.AddPersistence();
         services.AddAi();
+        services.AddKlerk();
         return services;
     }
 }
