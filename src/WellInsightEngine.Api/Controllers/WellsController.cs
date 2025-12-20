@@ -11,7 +11,7 @@ public sealed class WellsController(GetWellFeature feature) : ControllerBase
 {
     [HttpGet("[action]:{wellId:guid}")]
     [Authorize(Policies.ByEmail)]
-    public async Task<IActionResult> GetWell(Guid wellId, CancellationToken ct)
+    public async Task<ActionResult<GetWellResponse>> GetWell(Guid wellId, CancellationToken ct)
     {
         var result = await feature.Handle(wellId, ct);
 
