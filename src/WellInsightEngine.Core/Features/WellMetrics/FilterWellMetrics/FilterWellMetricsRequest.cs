@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+using WellInsightEngine.Core.Converters;
 using WellInsightEngine.Core.Enums;
 
 namespace WellInsightEngine.Core.Features.WellMetrics.FilterWellMetrics;
@@ -24,8 +26,8 @@ public class FilterWellMetricsRequest : IValidatableObject
     {
         WellId,
         ParameterIds,
-        From,
-        To
+        From = From.ToUniversalTime(),
+        To = To.ToUniversalTime()
     };
     
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -41,7 +43,8 @@ public class FilterWellMetricsRequest : IValidatableObject
 }
 
 public sealed class Aggregation
-{   
+{       
+    [JsonConverter(typeof(DescriptionEnumJsonConverter<GroupingInterval>))]
     public GroupingInterval Interval { get; init; }
     public AggregationType Type { get; init; }
 }

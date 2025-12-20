@@ -4,7 +4,6 @@ using WellInsightEngine.Core.Converters;
 
 namespace WellInsightEngine.Core.Features.WellMetrics;
 
-[JsonConverter(typeof(DescriptionEnumJsonConverter<GroupingInterval>))]
 public enum GroupingInterval
 {
     [Description("1m")]

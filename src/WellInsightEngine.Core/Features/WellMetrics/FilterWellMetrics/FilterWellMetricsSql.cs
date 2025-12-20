@@ -9,11 +9,7 @@ internal static class FilterWellMetricsSql
         if (request.Aggregation is null)
         {
             return """
-                   SELECT
-                     time AS "Time",
-                     well_id AS "WellId",
-                     parameter_id AS "ParameterId",
-                     value AS "Value"
+                   SELECT time, well_id, parameter_id, value
                    FROM well_metrics
                    WHERE well_id = @WellId
                      AND parameter_id = ANY(@ParameterIds)
@@ -36,11 +32,7 @@ internal static class FilterWellMetricsSql
         };
 
         return $"""
-                SELECT
-                  time AS "Time",
-                  well_id AS "WellId",
-                  parameter_id AS "ParameterId",
-                  {expression} AS "Value"
+                SELECT time, well_id, parameter_id, {expression} AS value
                 FROM {view}
                 WHERE well_id = @WellId
                   AND parameter_id = ANY(@ParameterIds)
