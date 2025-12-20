@@ -4,6 +4,7 @@ public sealed record DatabaseOptions
 {   
     public required PostgresOptions Postgres { get; init; }
     public required TimescaleDbOptions TimescaleDb { get; init; }
+    public bool MigrateOnStartup { get; init; } = false;
 
     public sealed record PostgresOptions
     {

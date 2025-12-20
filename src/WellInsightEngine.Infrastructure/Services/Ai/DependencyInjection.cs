@@ -12,12 +12,15 @@ public static class DependencyInjection
     public static IServiceCollection AddAi(this IServiceCollection services)
     {
         services.ConfigureOptions<AiOptionsSetup>();
-        services.AddSingleton<Client>(sp =>
-        {
-            var options = sp.GetRequiredService<IOptions<AiOptions>>().Value;
-            return new Client(apiKey: options.ApiKey);
-        });
+        var options = services.BuildServiceProvider().GetRequiredService<IOptions<AiOptions>>().Value;
 
+        if (options.Disabled)
+        {   
+            services.AddScoped<IGoogleAiService, DisabledGoogleAiService>();
+            return services;
+        }
+        
+        services.AddSingleton<Client>(_ => new Client(apiKey: options.ApiKey));
         services.AddScoped<IGoogleAiService, GoogleAiService>();
         return services;
     }

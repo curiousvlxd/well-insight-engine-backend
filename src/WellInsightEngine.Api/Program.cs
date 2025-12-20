@@ -4,6 +4,7 @@ using Scalar.AspNetCore;
 using WellInsightEngine.Api.OpenApi;
 using WellInsightEngine.Core;
 using WellInsightEngine.Infrastructure;
+using WellInsightEngine.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,12 +17,16 @@ builder.Services.Configure<ForwardedHeadersOptions>(o =>
 builder.Services.AddControllers()
     .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddOpenApi(options => options.AddDocumentTransformer<BearerSecuritySchemeTransformer>());
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
+    options.AddSchemaTransformer<StringEnumSchemaTransformer>();
+});
 builder.Services.AddInfrastructure();
 builder.Services.AddCore();
 
 var app = builder.Build();
-
+await app.MigrateIfNeededAsync();
 app.UseForwardedHeaders();
 app.UseHttpsRedirection();
 app.UseCors(policy =>

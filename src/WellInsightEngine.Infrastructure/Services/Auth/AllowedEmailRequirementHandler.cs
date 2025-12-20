@@ -12,6 +12,13 @@ public sealed class AllowedEmailHandler(IOptionsMonitor<KlerkAuthorizationOption
     protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, AllowedEmailRequirement requirement)
     {       
         var klerkOptions = options.CurrentValue;
+
+        if (klerkOptions.Disabled)
+        {   
+            context.Succeed(requirement);
+            return Task.CompletedTask;
+        }
+        
         var email = context.User.FindFirstValue(ClaimTypes.Email);
 
         if (string.IsNullOrWhiteSpace(email))

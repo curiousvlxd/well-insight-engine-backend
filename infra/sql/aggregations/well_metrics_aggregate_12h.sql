@@ -21,4 +21,4 @@ null,
 null,
 schedule_interval => INTERVAL '5 minutes');
 
-CALL refresh_continuous_aggregate('well_metrics_aggregate_12h', NULL, NULL);
+-- CALL refresh_continuous_aggregate('well_metrics_aggregate_12h', NULL, NULL);

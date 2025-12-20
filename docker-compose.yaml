@@ -1,0 +1,93 @@
+version: "3.9"
+
+services:
+  postgres-wells:
+    image: postgres:16
+    container_name: postgres-wells
+    environment:
+      POSTGRES_DB: wellinsightengine
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - pg_wells_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  timescaledb:
+    image: timescale/timescaledb:latest-pg16
+    container_name: timescaledb
+    environment:
+      POSTGRES_DB: tsdb
+      POSTGRES_USER: tsdbadmin
+      POSTGRES_PASSWORD: tsdbadmin
+    ports:
+      - "5434:5432"
+    volumes:
+      - tsdb_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tsdbadmin"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+
+  setup:
+    image: postgres:16
+    container_name: timescale-setup
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+    volumes:
+      - ./infra/sql:/sql:ro
+    environment:
+      PGHOST: timescaledb
+      PGPORT: 5432
+      PGDATABASE: tsdb
+      PGUSER: tsdbadmin
+      PGPASSWORD: tsdbadmin
+    entrypoint: ["bash", "/sql/setup.sh"]
+    restart: "no"
+
+  api:
+    build:
+      context: .
+      dockerfile: src/WellInsightEngine.Api/Dockerfile
+    container_name: wellinsightengine-api
+    depends_on:
+      postgres-wells:
+        condition: service_healthy
+      timescaledb:
+        condition: service_healthy
+      setup:
+        condition: service_completed_successfully
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+
+      Database__MigrateOnStartup: "true"
+
+      Database__Postgres__ConnectionString: >
+        Host=postgres-wells;
+        Port=5432;
+        Database=wellinsightengine;
+        Username=postgres;
+        Password=postgres
+
+      Database__TimescaleDb__ConnectionString: >
+        Host=timescaledb;
+        Port=5432;
+        Database=tsdb;
+        Username=tsdbadmin;
+        Password=tsdbadmin
+
+      Klerk__Disabled: "true"
+      Ai__Disabled: "true"
+
+volumes:
+  pg_wells_data:
+  tsdb_data:

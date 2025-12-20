@@ -24,4 +24,4 @@ SELECT add_continuous_aggregate_policy(
     null,
     schedule_interval => INTERVAL '1 minutes');
 
-CALL refresh_continuous_aggregate('well_metrics_aggregate_1m', NULL, NULL);
+-- CALL refresh_continuous_aggregate('well_metrics_aggregate_1m', NULL, NULL);

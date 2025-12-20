@@ -10,7 +10,7 @@ namespace WellInsightEngine.Api.Controllers;
 public sealed class WellsController(GetWellFeature feature) : ControllerBase
 {
     [HttpGet("[action]:{wellId:guid}")]
-    [Authorize(Policy = Policies.ByEmail)]
+    [Authorize(Policies.ByEmail)]
     public async Task<IActionResult> GetWell(Guid wellId, CancellationToken ct)
     {
         var result = await feature.Handle(wellId, ct);

@@ -36,3 +36,9 @@ public sealed class GoogleAiService(Client client, IOptions<AiOptions> options) 
         }
     }
 }
+
+public sealed class DisabledGoogleAiService : IGoogleAiService
+{
+    public Task<AiResponse> GenerateAsync(string prompt, CancellationToken ct)
+        => Task.FromResult(new AiResponse());
+}
