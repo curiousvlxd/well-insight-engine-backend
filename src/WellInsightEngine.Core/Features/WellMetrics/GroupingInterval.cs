@@ -28,7 +28,7 @@ public enum GroupingInterval
     [Description("12h")]
     TwelveHours,
 
-    [Description("24h")]
+    [Description("1d")]
     OneDay,
 
     [Description("7d")]

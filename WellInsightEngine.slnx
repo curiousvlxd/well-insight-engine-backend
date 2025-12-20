@@ -9,12 +9,12 @@
   <Folder Name="/infra/sql/aggregations/">
     <File Path="infra/sql/aggregations/well_metrics_aggregate_10m.sql" />
     <File Path="infra/sql/aggregations/well_metrics_aggregate_12h.sql" />
+    <File Path="infra/sql/aggregations/well_metrics_aggregate_1d.sql" />
     <File Path="infra/sql/aggregations/well_metrics_aggregate_1h.sql" />
     <File Path="infra/sql/aggregations/well_metrics_aggregate_1m.sql" />
     <File Path="infra/sql/aggregations/well_metrics_aggregate_1mo.sql" />
     <File Path="infra/sql/aggregations/well_metrics_aggregate_1w.sql" />
     <File Path="infra/sql/aggregations/well_metrics_aggregate_1y.sql" />
-    <File Path="infra/sql/aggregations/well_metrics_aggregate_24h.sql" />
     <File Path="infra/sql/aggregations/well_metrics_aggregate_30m.sql" />
     <File Path="infra/sql/aggregations/well_metrics_aggregate_5m.sql" />
     <File Path="infra/sql/aggregations/well_metrics_aggregate_6h.sql" />

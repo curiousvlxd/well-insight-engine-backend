@@ -8,7 +8,7 @@ SELECT
     MIN(COALESCE(min_value, 0)) AS min_value,
     MAX(COALESCE(max_value, 0)) AS max_value,
     MODE() WITHIN GROUP (ORDER BY mode_value) AS mode_value
-FROM well_metrics_aggregate_24h
+FROM well_metrics_aggregate_1d
 GROUP BY 1, 2, 3
 WITH NO DATA;
 

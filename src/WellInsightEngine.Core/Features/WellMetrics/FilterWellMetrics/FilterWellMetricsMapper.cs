@@ -4,15 +4,25 @@ namespace WellInsightEngine.Core.Features.WellMetrics.FilterWellMetrics;
 
 public static class FilterWellMetricsMapper
 {
-    public static FilterWellMetricsResponse Map(IReadOnlyList<WellMetric> rows)
+    public static FilterWellMetricsResponse Map(IReadOnlyList<WellMetric> rows, IReadOnlyDictionary<Guid, string> parameterNames)
         => new()
         {
-            Metrics = rows.Select(r => new MetricPointResponse
-            {
-                Time = r.Time,
-                WellId = r.WellId,
-                ParameterId = r.ParameterId,
-                Value = r.Value
-            }).ToList()
+            Series = rows
+                .GroupBy(x => new { x.WellId, x.ParameterId })
+                .Select(g => new MetricSeriesResponse
+                {
+                    WellId = g.Key.WellId,
+                    ParameterId = g.Key.ParameterId,
+                    ParameterName = parameterNames.TryGetValue(g.Key.ParameterId, out var name) ? name : string.Empty,
+                    DateTicks = g
+                        .OrderBy(x => x.Time)
+                        .Select(x => new MetricTickResponse
+                        {
+                            Time = x.Time,
+                            Value = x.Value
+                        })
+                        .ToList()
+                })
+                .ToList()
         };
 }

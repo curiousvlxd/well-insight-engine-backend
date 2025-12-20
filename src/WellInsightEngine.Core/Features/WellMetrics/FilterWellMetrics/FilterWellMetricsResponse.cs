@@ -1,14 +1,21 @@
 ﻿namespace WellInsightEngine.Core.Features.WellMetrics.FilterWellMetrics;
 
-public class FilterWellMetricsResponse
+
+public sealed class FilterWellMetricsResponse
 {
-    public List<MetricPointResponse> Metrics { get; init; } = [];
+    public List<MetricSeriesResponse> Series { get; init; } = [];
 }
 
-public sealed class MetricPointResponse
+public sealed class MetricSeriesResponse
 {
-    public DateTimeOffset Time { get; init; }
     public Guid WellId { get; init; }
     public Guid ParameterId { get; init; }
+    public string ParameterName { get; init; } = string.Empty;
+    public List<MetricTickResponse> DateTicks { get; init; } = [];
+}
+
+public sealed class MetricTickResponse
+{
+    public DateTimeOffset Time { get; init; }
     public string Value { get; init; } = string.Empty;
 }

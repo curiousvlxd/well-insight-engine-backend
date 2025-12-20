@@ -12,7 +12,7 @@ public static class WellMetricsAggregations
             [GroupingInterval.OneHour] = "well_metrics_aggregate_1h",
             [GroupingInterval.SixHours] = "well_metrics_aggregate_6h",
             [GroupingInterval.TwelveHours] = "well_metrics_aggregate_12h",
-            [GroupingInterval.OneDay] = "well_metrics_aggregate_24h",
+            [GroupingInterval.OneDay] = "well_metrics_aggregate_1d",
             [GroupingInterval.OneWeek] = "well_metrics_aggregate_7d",
             [GroupingInterval.OneMonth] = "well_metrics_aggregate_1mo",
             [GroupingInterval.OneYear] = "well_metrics_aggregate_1y"

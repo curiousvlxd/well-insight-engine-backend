@@ -2,7 +2,6 @@
 
 public enum AggregationType
 {
-    Raw = 0,
     Avg = 1,
     Min = 2,
     Max = 3,
