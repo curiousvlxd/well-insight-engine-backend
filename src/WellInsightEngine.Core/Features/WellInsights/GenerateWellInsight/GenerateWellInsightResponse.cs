@@ -1,6 +1,6 @@
 ﻿using WellInsightEngine.Core.Entities.WellInsight;
 using WellInsightEngine.Core.Entities.WellInsight.Payload;
-using WellInsightEngine.Core.Features.WellInsights.GenerateWellInsight.Ai;
+using WellInsightEngine.Core.Features.WellMetrics;
 
 namespace WellInsightEngine.Core.Features.WellInsights.GenerateWellInsight;
 
@@ -11,7 +11,9 @@ public sealed class GenerateWellInsightResponse
     public required DateTimeOffset CreatedAt { get; init; }
     public required DateTimeOffset From { get; init; }
     public required DateTimeOffset To { get; init; }
+    public required GroupingInterval Interval { get; init; }
     public required string Title { get; init; }
+    public required string Slug { get; init; }
     public required string Summary { get; init; }
     public required WellInsightPayload Payload { get; init; }
     public required IReadOnlyList<string> Highlights { get; init; }
@@ -20,7 +22,8 @@ public sealed class GenerateWellInsightResponse
     
     public static GenerateWellInsightResponse Create(WellInsight insight)
         => new()
-        {
+        {   
+            Interval = insight.Interval,
             InsightId = insight.Id,
             WellId = insight.WellId,
             CreatedAt = insight.CreatedAt,
@@ -31,6 +34,7 @@ public sealed class GenerateWellInsightResponse
             Payload = insight.Payload,
             Highlights = insight.Highlights,
             Suspicions = insight.Suspicions,
-            RecommendedActions = insight.RecommendedActions
+            RecommendedActions = insight.RecommendedActions,
+            Slug = insight.Slug
         };
 }

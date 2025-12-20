@@ -13,7 +13,6 @@ public interface IApplicationDbContext
     IQueryable<WellParameter> WellParameters { get; }
     IQueryable<WellAction> WellActions { get; }
     IQueryable<WellInsight> WellInsights { get; }
-    IQueryable<WellInsightAction> InsightActions { get; }
     void Add<TEntity>(TEntity entity) where TEntity : class;
     void AddRange<TEntity>(List<TEntity> entitis) where TEntity : class;
     Task<int> SaveChangesAsync(CancellationToken ct = default);

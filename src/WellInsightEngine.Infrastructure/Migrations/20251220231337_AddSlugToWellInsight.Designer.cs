@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WellInsightEngine.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using WellInsightEngine.Infrastructure.Persistence;
 namespace WellInsightEngine.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251220231337_AddSlugToWellInsight")]
+    partial class AddSlugToWellInsight
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -176,10 +179,6 @@ namespace WellInsightEngine.Infrastructure.Migrations
                         .HasColumnType("jsonb")
                         .HasColumnName("highlights");
 
-                    b.Property<int>("Interval")
-                        .HasColumnType("integer")
-                        .HasColumnName("interval");
-
                     b.Property<string>("Payload")
                         .IsRequired()
                         .HasColumnType("jsonb")
@@ -228,6 +227,25 @@ namespace WellInsightEngine.Infrastructure.Migrations
                         .HasDatabaseName("ix_well_insights_well_id_from_to");
 
                     b.ToTable("well_insights", (string)null);
+                });
+
+            modelBuilder.Entity("WellInsightEngine.Core.Entities.WellInsightAction", b =>
+                {
+                    b.Property<Guid>("InsightId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("insight_id");
+
+                    b.Property<Guid>("WellActionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("well_action_id");
+
+                    b.HasKey("InsightId", "WellActionId")
+                        .HasName("pk_well_insight_actions");
+
+                    b.HasIndex("WellActionId")
+                        .HasDatabaseName("ix_well_insight_actions_well_action_id");
+
+                    b.ToTable("well_insight_actions", (string)null);
                 });
 
             modelBuilder.Entity("WellInsightEngine.Core.Entities.WellParameter", b =>
@@ -301,6 +319,23 @@ namespace WellInsightEngine.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_well_insights_wells_well_id");
+                });
+
+            modelBuilder.Entity("WellInsightEngine.Core.Entities.WellInsightAction", b =>
+                {
+                    b.HasOne("WellInsightEngine.Core.Entities.WellInsight.WellInsight", null)
+                        .WithMany()
+                        .HasForeignKey("InsightId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_well_insight_actions_well_insights_insight_id");
+
+                    b.HasOne("WellInsightEngine.Core.Entities.WellAction", null)
+                        .WithMany()
+                        .HasForeignKey("WellActionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_well_insight_actions_well_actions_well_action_id");
                 });
 
             modelBuilder.Entity("WellInsightEngine.Core.Entities.WellParameter", b =>

@@ -27,6 +27,7 @@ public sealed class WellInsightConfiguration : IEntityTypeConfiguration<WellInsi
         e.Property(x => x.To).IsRequired();
         e.Property(x => x.Title).IsRequired();
         e.Property(x => x.Summary).IsRequired();
+        e.Property(x => x.Slug).IsRequired();
         var payloadConverter = new ValueConverter<WellInsightPayload, string>(
             v => JsonSerializer.Serialize(v, JsonOptions),
             v => JsonSerializer.Deserialize<WellInsightPayload>(v, JsonOptions)!);

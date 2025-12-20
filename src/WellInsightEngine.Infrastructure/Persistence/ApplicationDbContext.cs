@@ -13,7 +13,6 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<WellParameter> WellParameters => Set<WellParameter>();
     public DbSet<WellAction> WellActions => Set<WellAction>();
     public DbSet<WellInsight> WellInsights => Set<WellInsight>();
-    public DbSet<WellInsightAction> WellInsightActions => Set<WellInsightAction>();
     void IApplicationDbContext.Add<TEntity>(TEntity entity) => Set<TEntity>().Add(entity);
     void IApplicationDbContext.AddRange<TEntity>(List<TEntity> entities) => Set<TEntity>().AddRange(entities);
     IQueryable<Asset> IApplicationDbContext.Assets => Assets;
@@ -22,7 +21,6 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     IQueryable<WellParameter> IApplicationDbContext.WellParameters => WellParameters;
     IQueryable<WellAction> IApplicationDbContext.WellActions => WellActions;
     IQueryable<WellInsight> IApplicationDbContext.WellInsights => WellInsights;
-    IQueryable<WellInsightAction> IApplicationDbContext.InsightActions => WellInsightActions;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
         => modelBuilder.ApplyConfigurationsFromAssembly(AssemblyReference.Assembly);

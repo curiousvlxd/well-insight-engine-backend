@@ -14,7 +14,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Abstractions\Services\" />
       <Folder Include="Features\Assets\" />
       <Folder Include="Features\Wells\" />
     </ItemGroup>

@@ -3,6 +3,7 @@ using Dapper;
 using Microsoft.EntityFrameworkCore;
 using WellInsightEngine.Core.Abstractions.Persistence;
 using WellInsightEngine.Core.Abstractions.Services.Ai;
+using WellInsightEngine.Core.Abstractions.Services.Slug;
 using WellInsightEngine.Core.Entities;
 using WellInsightEngine.Core.Entities.WellInsight;
 using WellInsightEngine.Core.Entities.WellInsight.Payload;
@@ -10,12 +11,12 @@ using WellInsightEngine.Core.Enums;
 using WellInsightEngine.Core.Extensions;
 using WellInsightEngine.Core.Features.WellInsights.GenerateWellInsight.Ai;
 using WellInsightEngine.Core.Features.WellMetrics;
-using WellInsightAction = WellInsightEngine.Core.Entities.WellInsightAction;
 
 namespace WellInsightEngine.Core.Features.WellInsights.GenerateWellInsight;
 
 public sealed class GenerateWellInsightFeature(
     ISqlConnectionFactory sqlFactory,
+    ISlugService slugService,
     IApplicationDbContext context,
     IGoogleAiService ai)
 {
@@ -26,17 +27,13 @@ public sealed class GenerateWellInsightFeature(
         var well = await LoadWellAsync(request.WellId, cancellation);
         var parameterMap = await LoadParametersAsync(request.ParameterIds, cancellation);
         var actions = await LoadActionsAsync(request.WellId, fromUtc, toUtc, cancellation);
-        var interval = WellInsightRules.ChooseInterval(fromUtc, toUtc, request.MaxPointsPerSeries);
+        var interval = WellInsightRules.ChooseInterval(fromUtc, toUtc, request.MaxMetrics);
         var aggregate = WellInsightKnowledge.ResolveAggregate(interval);
         var series = await FetchSeriesAsync(aggregate, request.WellId, request.ParameterIds, fromUtc, toUtc, parameterMap, cancellation);
         var payload = BuildPayload(series);
         var aiEnvelope = await GenerateAiAsync(well, fromUtc, toUtc, interval, payload, actions, cancellation);
-        var insight = WellInsight.Create(well.Id, fromUtc, toUtc, aiEnvelope.Title, aiEnvelope.Summary, aiEnvelope.Highlights, aiEnvelope.Suspicions, aiEnvelope.RecommendedActions, payload);
+        var insight = WellInsight.Create(slugService, interval, well.Id, fromUtc, toUtc, aiEnvelope.Title, aiEnvelope.Summary, aiEnvelope.Highlights, aiEnvelope.Suspicions, aiEnvelope.RecommendedActions, payload);
         context.Add(insight);
-        var insightActions = CreateInsightActions(insight.Id, actions);
-        
-        if (insightActions.Count > 0) context.AddRange(insightActions);
-
         await context.SaveChangesAsync(cancellation);
         return GenerateWellInsightResponse.Create(insight);
     }
@@ -68,6 +65,7 @@ public sealed class GenerateWellInsightFeature(
 
         var sql = $"""
                   SELECT
+                    well_id,
                     time,
                     parameter_id,
                     avg_value,
@@ -159,15 +157,6 @@ public sealed class GenerateWellInsightFeature(
         return asset is null
             ? $"Інсайт: {well.Name} ({description})"
             : $"Інсайт: {well.Name} | Ассет {asset} ({description})";
-    }
-
-    private static List<WellInsightAction> CreateInsightActions(Guid insightId, IReadOnlyList<WellAction> actions)
-    {
-        if (actions.Count == 0) return [];
-
-        var list = new List<WellInsightAction>(actions.Count);
-        list.AddRange(actions.Select(a => WellInsightAction.Create(insightId, a.Id)));
-        return list;
     }
 
     private static string? Safe(string? s) => string.IsNullOrWhiteSpace(s) ? null : s.Trim();
