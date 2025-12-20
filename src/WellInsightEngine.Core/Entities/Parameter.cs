@@ -8,6 +8,5 @@ public sealed class Parameter
     public string Code { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public ParameterDataType DataType { get; set; }
-
     public List<WellParameter> Wells { get; } = [];
 }

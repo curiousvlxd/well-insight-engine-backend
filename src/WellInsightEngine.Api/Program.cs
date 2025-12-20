@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Scalar.AspNetCore;
 using WellInsightEngine.Api.OpenApi;
@@ -12,7 +13,8 @@ builder.Services.Configure<ForwardedHeadersOptions>(o =>
     o.KnownIPNetworks.Clear();
     o.KnownProxies.Clear();
 });
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi(options => options.AddDocumentTransformer<BearerSecuritySchemeTransformer>());
 builder.Services.AddInfrastructure();
