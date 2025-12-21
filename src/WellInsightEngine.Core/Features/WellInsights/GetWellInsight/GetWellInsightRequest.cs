@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
+using WellInsightEngine.Core.Abstractions.Services.Slug;
 
 namespace WellInsightEngine.Core.Features.WellInsights.GetWellInsight;
 
@@ -18,10 +19,10 @@ public sealed partial record GetWellInsightRequest : IValidatableObject
 
         var s = Slug.Trim();
 
-        if (NonSlug().IsMatch(s))
+        if (SlugRegexes.NonSlug().IsMatch(s))
             yield return new ValidationResult("Slug contains invalid characters.", [nameof(Slug)]);
 
-        if (MultiDash().IsMatch(s))
+        if (SlugRegexes.MultiDash().IsMatch(s))
             yield return new ValidationResult("Slug must not contain consecutive dashes.", [nameof(Slug)]);
 
         if (s.StartsWith('-') || s.EndsWith('-'))
@@ -30,10 +31,4 @@ public sealed partial record GetWellInsightRequest : IValidatableObject
                 [nameof(Slug)]);
 
     }
-
-    [GeneratedRegex("[^a-z0-9-]", RegexOptions.Compiled)]
-    private static partial Regex NonSlug();
-
-    [GeneratedRegex("-{2,}", RegexOptions.Compiled)]
-    private static partial Regex MultiDash();
 }

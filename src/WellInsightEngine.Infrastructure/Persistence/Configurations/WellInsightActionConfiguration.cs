@@ -16,7 +16,7 @@ public sealed class WellInsightActionConfiguration : IEntityTypeConfiguration<We
             .HasForeignKey(x => x.InsightId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        e.HasOne<WellAction>()
+        e.HasOne(x => x.WellAction)
             .WithMany()
             .HasForeignKey(x => x.WellActionId)
             .OnDelete(DeleteBehavior.Cascade);

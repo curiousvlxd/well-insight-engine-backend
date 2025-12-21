@@ -7,8 +7,6 @@ namespace WellInsightEngine.Infrastructure.Services.Slug;
 
 public sealed partial class SlugService : ISlugService
 {
-    private static readonly Regex MultiDash = MultiDashRegex();
-    private static readonly Regex NonSlug = NonSlugRegex();
 
     public string Provide(string title, Guid id)
     {
@@ -50,8 +48,8 @@ public sealed partial class SlugService : ISlugService
 
         s = sb.ToString().Normalize(NormalizationForm.FormC);
         s = SlugRegex().Replace(s, "-");
-        s = NonSlug.Replace(s, "");
-        s = MultiDash.Replace(s, "-");
+        s = SlugRegexes.NonSlug().Replace(s, "");
+        s = SlugRegexes.MultiDash().Replace(s, "-");
         s = s.Trim('-');
 
         return s;
@@ -81,8 +79,4 @@ public sealed partial class SlugService : ISlugService
 
     [GeneratedRegex(@"[\s_]+")]
     private static partial Regex SlugRegex();
-    [GeneratedRegex("-{2,}", RegexOptions.Compiled)]
-    private static partial Regex MultiDashRegex();
-    [GeneratedRegex("[^a-z0-9-]", RegexOptions.Compiled)]
-    private static partial Regex NonSlugRegex();
 }

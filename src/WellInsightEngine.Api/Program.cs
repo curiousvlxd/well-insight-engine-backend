@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Scalar.AspNetCore;
 using WellInsightEngine.Api.OpenApi;
 using WellInsightEngine.Core;
+using WellInsightEngine.Core.Converters;
 using WellInsightEngine.Infrastructure;
 using WellInsightEngine.Infrastructure.Extensions;
 

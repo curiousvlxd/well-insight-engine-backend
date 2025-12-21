@@ -2,6 +2,8 @@
 using System.Text.Json.Serialization;
 using WellInsightEngine.Core.Extensions;
 
+namespace WellInsightEngine.Core.Converters;
+
 public sealed class DescriptionEnumJsonConverter : JsonConverter<Enum>
 {
     public override bool CanConvert(Type typeToConvert)
