@@ -2,9 +2,9 @@
 using WellInsightEngine.Core.Extensions;
 using WellInsightEngine.Core.Features.Common.Pagination;
 
-namespace WellInsightEngine.Core.Features.WellActions.FilterWellActions;
+namespace WellInsightEngine.Core.Features.WellInsights.FilterWellInsights;
 
-public sealed class FilterWellActionsRequest : IValidatableObject
+public sealed record FilterWellInsightsRequest : IValidatableObject
 {
     [Required]
     public Guid WellId { get; init; }

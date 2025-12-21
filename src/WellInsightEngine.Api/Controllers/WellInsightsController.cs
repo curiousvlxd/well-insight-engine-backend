@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WellInsightEngine.Core.Features.WellInsights.Common;
+using WellInsightEngine.Core.Features.WellInsights.FilterWellInsights;
 using WellInsightEngine.Core.Features.WellInsights.GenerateWellInsight;
 using WellInsightEngine.Core.Features.WellInsights.GetWellInsight;
 using WellInsightEngine.Infrastructure.Services.Auth;
@@ -28,6 +29,14 @@ public sealed class WellInsightsController : ControllerBase
         if (result is null)
             return NotFound();
         
+        return Ok(result);
+    }
+    
+    [Authorize(Policies.ByEmail)]
+    [HttpPost("[action]")]
+    public async Task<ActionResult<FilterWellInsightsResponse>> FilterWellInsights([FromBody] FilterWellInsightsRequest request, [FromServices] FilterWellInsightsFeature feature, CancellationToken cancellation)
+    {
+        var result = await feature.Handle(request, cancellation);
         return Ok(result);
     }
 }
