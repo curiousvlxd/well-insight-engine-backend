@@ -2,9 +2,9 @@
 using WellInsightEngine.Core.Entities.WellInsight.Payload;
 using WellInsightEngine.Core.Features.WellMetrics;
 
-namespace WellInsightEngine.Core.Features.WellInsights.GenerateWellInsight;
+namespace WellInsightEngine.Core.Features.WellInsights.Common;
 
-public sealed class GenerateWellInsightResponse
+public sealed class WellInsightResponse
 {
     public required Guid InsightId { get; init; }
     public required Guid WellId { get; init; }
@@ -20,7 +20,7 @@ public sealed class GenerateWellInsightResponse
     public required IReadOnlyList<string> Suspicions { get; init; }
     public required IReadOnlyList<string> RecommendedActions { get; init; }
     
-    public static GenerateWellInsightResponse Create(WellInsight insight)
+    public static WellInsightResponse Create(WellInsight insight)
         => new()
         {   
             Interval = insight.Interval,

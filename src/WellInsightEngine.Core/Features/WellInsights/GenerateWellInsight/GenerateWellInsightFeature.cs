@@ -9,18 +9,15 @@ using WellInsightEngine.Core.Entities.WellInsight;
 using WellInsightEngine.Core.Entities.WellInsight.Payload;
 using WellInsightEngine.Core.Enums;
 using WellInsightEngine.Core.Extensions;
+using WellInsightEngine.Core.Features.WellInsights.Common;
 using WellInsightEngine.Core.Features.WellInsights.GenerateWellInsight.Ai;
 using WellInsightEngine.Core.Features.WellMetrics;
 
 namespace WellInsightEngine.Core.Features.WellInsights.GenerateWellInsight;
 
-public sealed class GenerateWellInsightFeature(
-    ISqlConnectionFactory sqlFactory,
-    ISlugService slugService,
-    IApplicationDbContext context,
-    IGoogleAiService ai)
+public sealed class GenerateWellInsightFeature(ISqlConnectionFactory sqlFactory, ISlugService slugService, IApplicationDbContext context, IGoogleAiService ai)
 {
-    public async Task<GenerateWellInsightResponse> Handle(GenerateWellInsightRequest request, CancellationToken cancellation)
+    public async Task<WellInsightResponse> Handle(GenerateWellInsightRequest request, CancellationToken cancellation)
     {
         var fromUtc = request.From.ToUniversalTime();
         var toUtc = request.To.ToUniversalTime();
@@ -35,7 +32,7 @@ public sealed class GenerateWellInsightFeature(
         var insight = WellInsight.Create(slugService, interval, well.Id, fromUtc, toUtc, aiEnvelope.Title, aiEnvelope.Summary, aiEnvelope.Highlights, aiEnvelope.Suspicions, aiEnvelope.RecommendedActions, payload);
         context.Add(insight);
         await context.SaveChangesAsync(cancellation);
-        return GenerateWellInsightResponse.Create(insight);
+        return WellInsightResponseMapper.Map(insight);
     }
 
     private async Task<Well> LoadWellAsync(Guid wellId, CancellationToken ct)

@@ -9,11 +9,11 @@ namespace WellInsightEngine.Api.Controllers;
 [Route("[controller]")]
 public sealed class WellsController(GetWellFeature feature) : ControllerBase
 {
-    [HttpGet("[action]:{wellId:guid}")]
+    [HttpGet("[action]:{WellId:guid}")]
     [Authorize(Policies.ByEmail)]
-    public async Task<ActionResult<GetWellResponse>> GetWell(Guid wellId, CancellationToken ct)
+    public async Task<ActionResult<GetWellResponse>> GetWell([FromRoute] GetWellRequest request, CancellationToken cancellation)
     {
-        var result = await feature.Handle(wellId, ct);
+        var result = await feature.Handle(request, cancellation);
 
         if (result is null)
             return NotFound();
