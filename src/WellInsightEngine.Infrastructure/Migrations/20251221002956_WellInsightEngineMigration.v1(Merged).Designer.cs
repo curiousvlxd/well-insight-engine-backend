@@ -12,8 +12,8 @@ using WellInsightEngine.Infrastructure.Persistence;
 namespace WellInsightEngine.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251220013305_AdjustParameterEntity")]
-    partial class AdjustParameterEntity
+    [Migration("20251221002956_WellInsightEngineMigration.v1(Merged)")]
+    partial class WellInsightEngineMigrationv1Merged
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -49,75 +49,6 @@ namespace WellInsightEngine.Infrastructure.Migrations
                         .HasDatabaseName("ix_assets_parent_id_name");
 
                     b.ToTable("assets", (string)null);
-                });
-
-            modelBuilder.Entity("WellInsightEngine.Core.Entities.Insight.Insight", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<DateTimeOffset>("From")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("from");
-
-                    b.Property<string>("Payload")
-                        .IsRequired()
-                        .HasColumnType("jsonb")
-                        .HasColumnName("payload");
-
-                    b.Property<string>("Summary")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("summary");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("title");
-
-                    b.Property<DateTimeOffset>("To")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("to");
-
-                    b.Property<Guid>("WellId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("well_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_insights");
-
-                    b.HasIndex("WellId", "CreatedAt")
-                        .HasDatabaseName("ix_insights_well_id_created_at");
-
-                    b.HasIndex("WellId", "From", "To")
-                        .HasDatabaseName("ix_insights_well_id_from_to");
-
-                    b.ToTable("insights", (string)null);
-                });
-
-            modelBuilder.Entity("WellInsightEngine.Core.Entities.InsightAction", b =>
-                {
-                    b.Property<Guid>("InsightId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("insight_id");
-
-                    b.Property<Guid>("WellActionId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("well_action_id");
-
-                    b.HasKey("InsightId", "WellActionId")
-                        .HasName("pk_insight_actions");
-
-                    b.HasIndex("WellActionId")
-                        .HasDatabaseName("ix_insight_actions_well_action_id");
-
-                    b.ToTable("insight_actions", (string)null);
                 });
 
             modelBuilder.Entity("WellInsightEngine.Core.Entities.Parameter", b =>
@@ -228,6 +159,80 @@ namespace WellInsightEngine.Infrastructure.Migrations
                     b.ToTable("well_actions", (string)null);
                 });
 
+            modelBuilder.Entity("WellInsightEngine.Core.Entities.WellInsight.WellInsight", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset>("From")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("from");
+
+                    b.Property<string>("Highlights")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("highlights");
+
+                    b.Property<int>("Interval")
+                        .HasColumnType("integer")
+                        .HasColumnName("interval");
+
+                    b.Property<string>("Payload")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("payload");
+
+                    b.Property<string>("RecommendedActions")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("recommended_actions");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("slug");
+
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("summary");
+
+                    b.Property<string>("Suspicions")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("suspicions");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("title");
+
+                    b.Property<DateTimeOffset>("To")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("to");
+
+                    b.Property<Guid>("WellId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("well_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_well_insights");
+
+                    b.HasIndex("WellId", "CreatedAt")
+                        .HasDatabaseName("ix_well_insights_well_id_created_at");
+
+                    b.HasIndex("WellId", "From", "To")
+                        .HasDatabaseName("ix_well_insights_well_id_from_to");
+
+                    b.ToTable("well_insights", (string)null);
+                });
+
             modelBuilder.Entity("WellInsightEngine.Core.Entities.WellParameter", b =>
                 {
                     b.Property<Guid>("Id")
@@ -267,33 +272,6 @@ namespace WellInsightEngine.Infrastructure.Migrations
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("WellInsightEngine.Core.Entities.Insight.Insight", b =>
-                {
-                    b.HasOne("WellInsightEngine.Core.Entities.Well", null)
-                        .WithMany()
-                        .HasForeignKey("WellId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_insights_wells_well_id");
-                });
-
-            modelBuilder.Entity("WellInsightEngine.Core.Entities.InsightAction", b =>
-                {
-                    b.HasOne("WellInsightEngine.Core.Entities.Insight.Insight", null)
-                        .WithMany()
-                        .HasForeignKey("InsightId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_insight_actions_insights_insight_id");
-
-                    b.HasOne("WellInsightEngine.Core.Entities.WellAction", null)
-                        .WithMany()
-                        .HasForeignKey("WellActionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_insight_actions_well_actions_well_action_id");
-                });
-
             modelBuilder.Entity("WellInsightEngine.Core.Entities.Well", b =>
                 {
                     b.HasOne("WellInsightEngine.Core.Entities.Asset", "Asset")
@@ -316,6 +294,16 @@ namespace WellInsightEngine.Infrastructure.Migrations
                         .HasConstraintName("fk_well_actions_wells_well_id");
 
                     b.Navigation("Well");
+                });
+
+            modelBuilder.Entity("WellInsightEngine.Core.Entities.WellInsight.WellInsight", b =>
+                {
+                    b.HasOne("WellInsightEngine.Core.Entities.Well", null)
+                        .WithMany()
+                        .HasForeignKey("WellId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_well_insights_wells_well_id");
                 });
 
             modelBuilder.Entity("WellInsightEngine.Core.Entities.WellParameter", b =>

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace WellInsightEngine.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class WellInsightEngineMigrationv1Merged : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -65,30 +65,6 @@ namespace WellInsightEngine.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "insights",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    well_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    from = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    to = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    title = table.Column<string>(type: "text", nullable: false),
-                    summary = table.Column<string>(type: "text", nullable: false),
-                    payload = table.Column<string>(type: "jsonb", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_insights", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_insights_wells_well_id",
-                        column: x => x.well_id,
-                        principalTable: "wells",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "well_actions",
                 columns: table => new
                 {
@@ -111,14 +87,41 @@ namespace WellInsightEngine.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "well_insights",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    well_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    from = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    to = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    interval = table.Column<int>(type: "integer", nullable: false),
+                    title = table.Column<string>(type: "text", nullable: false),
+                    summary = table.Column<string>(type: "text", nullable: false),
+                    payload = table.Column<string>(type: "jsonb", nullable: false),
+                    slug = table.Column<string>(type: "text", nullable: false),
+                    highlights = table.Column<string>(type: "jsonb", nullable: false),
+                    suspicions = table.Column<string>(type: "jsonb", nullable: false),
+                    recommended_actions = table.Column<string>(type: "jsonb", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_well_insights", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_well_insights_wells_well_id",
+                        column: x => x.well_id,
+                        principalTable: "wells",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "well_parameters",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     well_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    data_type = table.Column<short>(type: "smallint", nullable: false),
-                    parameter_id = table.Column<Guid>(type: "uuid", nullable: true)
+                    parameter_id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -127,7 +130,8 @@ namespace WellInsightEngine.Infrastructure.Migrations
                         name: "fk_well_parameters_parameters_parameter_id",
                         column: x => x.parameter_id,
                         principalTable: "parameters",
-                        principalColumn: "id");
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "fk_well_parameters_wells_well_id",
                         column: x => x.well_id,
@@ -136,49 +140,10 @@ namespace WellInsightEngine.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "insight_actions",
-                columns: table => new
-                {
-                    insight_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    well_action_id = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_insight_actions", x => new { x.insight_id, x.well_action_id });
-                    table.ForeignKey(
-                        name: "fk_insight_actions_insights_insight_id",
-                        column: x => x.insight_id,
-                        principalTable: "insights",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "fk_insight_actions_well_actions_well_action_id",
-                        column: x => x.well_action_id,
-                        principalTable: "well_actions",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
             migrationBuilder.CreateIndex(
                 name: "ix_assets_parent_id_name",
                 table: "assets",
                 columns: new[] { "parent_id", "name" });
-
-            migrationBuilder.CreateIndex(
-                name: "ix_insight_actions_well_action_id",
-                table: "insight_actions",
-                column: "well_action_id");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_insights_well_id_created_at",
-                table: "insights",
-                columns: new[] { "well_id", "created_at" });
-
-            migrationBuilder.CreateIndex(
-                name: "ix_insights_well_id_from_to",
-                table: "insights",
-                columns: new[] { "well_id", "from", "to" });
 
             migrationBuilder.CreateIndex(
                 name: "ix_parameters_code",
@@ -192,14 +157,25 @@ namespace WellInsightEngine.Infrastructure.Migrations
                 columns: new[] { "well_id", "timestamp" });
 
             migrationBuilder.CreateIndex(
+                name: "ix_well_insights_well_id_created_at",
+                table: "well_insights",
+                columns: new[] { "well_id", "created_at" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_well_insights_well_id_from_to",
+                table: "well_insights",
+                columns: new[] { "well_id", "from", "to" });
+
+            migrationBuilder.CreateIndex(
                 name: "ix_well_parameters_parameter_id",
                 table: "well_parameters",
                 column: "parameter_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_well_parameters_well_id_name",
+                name: "ix_well_parameters_well_id_parameter_id",
                 table: "well_parameters",
-                columns: new[] { "well_id", "name" });
+                columns: new[] { "well_id", "parameter_id" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "ix_wells_asset_id",
@@ -216,16 +192,13 @@ namespace WellInsightEngine.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "insight_actions");
+                name: "well_actions");
+
+            migrationBuilder.DropTable(
+                name: "well_insights");
 
             migrationBuilder.DropTable(
                 name: "well_parameters");
-
-            migrationBuilder.DropTable(
-                name: "insights");
-
-            migrationBuilder.DropTable(
-                name: "well_actions");
 
             migrationBuilder.DropTable(
                 name: "parameters");

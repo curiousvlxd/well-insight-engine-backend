@@ -24,4 +24,8 @@
       <ProjectReference Include="..\WellInsightEngine.Core\WellInsightEngine.Core.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Migrations\" />
+    </ItemGroup>
+
 </Project>
