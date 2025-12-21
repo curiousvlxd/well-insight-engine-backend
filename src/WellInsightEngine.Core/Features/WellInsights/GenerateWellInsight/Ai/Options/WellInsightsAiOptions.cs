@@ -13,8 +13,7 @@ public sealed record WellInsightsAiOptions
     ];
 
     public int MaxPointsPerSeries { get; init; } 
-    public int MaxActionsTotal { get; init; }
-    public int MaxActionsForPrompt { get; init; }
+    public int MaxActionsPerPrompt  { get; init; }
     public int TopKSeriesForPrompt { get; init; }
     public int PromptMaxChars { get; init; }
     public double SpikeZScore { get; init; }

@@ -51,11 +51,11 @@ public sealed class WellInsightsAiService(IGoogleAiService ai, IOptions<WellInsi
                     .ToList()));
 
     private static IEnumerable<WellAction> TrimActions(List<WellAction> actions, WellInsightsAiOptions o)
-        => actions.Count <= o.MaxActionsForPrompt
+        => actions.Count <= o.MaxActionsPerPrompt
             ? actions
             : actions
                 .OrderByDescending(x => x.Timestamp)
-                .Take(o.MaxActionsForPrompt)
+                .Take(o.MaxActionsPerPrompt)
                 .OrderBy(x => x.Timestamp);
 
     private static IEnumerable<WellInsightMetric> TrimTicks(IReadOnlyList<WellInsightMetric> ticks, int maxPoints)
