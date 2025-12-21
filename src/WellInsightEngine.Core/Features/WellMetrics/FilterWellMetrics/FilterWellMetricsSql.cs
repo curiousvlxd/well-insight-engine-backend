@@ -26,7 +26,6 @@ internal static class FilterWellMetricsSql
             AggregationType.Avg => "avg_value",
             AggregationType.Min => "min_value",
             AggregationType.Max => "max_value",
-            AggregationType.Sum => "sum_value",
             AggregationType.Mode => "mode_value",
             _ => throw new InvalidOperationException($"Unsupported aggregation type: {request.Aggregation.Type}")
         };
