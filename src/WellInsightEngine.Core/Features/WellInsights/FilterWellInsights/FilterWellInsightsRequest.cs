@@ -6,6 +6,25 @@ namespace WellInsightEngine.Core.Features.WellInsights.FilterWellInsights;
 
 public sealed record FilterWellInsightsRequest : IValidatableObject
 {
+    public WellInsightFilter? Filter { get; init; }
+
+    public OffsetPagination Pagination { get; init; } = new();
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        foreach (var r in Pagination.ValidatePagination(validationContext))
+            yield return r;
+
+        if (Filter is null)
+            yield break;
+
+        foreach (var r in Filter.Validate(validationContext))
+            yield return r;
+    }
+}
+
+public sealed record WellInsightFilter : IValidatableObject
+{
     [Required]
     public Guid WellId { get; init; }
 
@@ -14,8 +33,6 @@ public sealed record FilterWellInsightsRequest : IValidatableObject
 
     [Required]
     public DateTimeOffset To { get; init; }
-
-    public OffsetPagination Pagination { get; init; } = new();
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
@@ -26,8 +43,5 @@ public sealed record FilterWellInsightsRequest : IValidatableObject
                 [nameof(From), nameof(To)]
             );
         }
-
-        foreach (var r in Pagination.ValidatePagination(validationContext))
-            yield return r;
     }
 }

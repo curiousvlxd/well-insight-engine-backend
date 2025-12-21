@@ -8,20 +8,26 @@ public sealed class FilterWellInsightsFeature(IApplicationDbContext context)
 {
     public async Task<FilterWellInsightsResponse> Handle(FilterWellInsightsRequest request, CancellationToken cancellation)
     {
-        var fromUtc = request.From.ToUniversalTime();
-        var toUtc = request.To.ToUniversalTime();
-
         var query =
             context.WellInsights
-                .AsNoTracking()
-                .Where(x =>
-                    x.WellId == request.WellId &&
-                    x.CreatedAt >= fromUtc &&
-                    x.CreatedAt <= toUtc)
-                .OrderByDescending(x => x.CreatedAt)
-                .ProjectToResponse();
+                .AsNoTracking();
 
-        var paged = await query.ToOffsetPagedListAsync(request.Pagination, cancellation);
+        if (request.Filter is not null)
+        {
+            var fromUtc = request.Filter.From.ToUniversalTime();
+            var toUtc = request.Filter.To.ToUniversalTime();
+
+            query = query.Where(x =>
+                x.WellId == request.Filter.WellId &&
+                x.CreatedAt >= fromUtc &&
+                x.CreatedAt <= toUtc);
+        }
+
+        var projected = query
+            .OrderByDescending(x => x.CreatedAt)
+            .ProjectToResponse();
+
+        var paged = await projected.ToOffsetPagedListAsync(request.Pagination, cancellation);
         return FilterWellInsightsResponse.Create(paged);
     }
 }
