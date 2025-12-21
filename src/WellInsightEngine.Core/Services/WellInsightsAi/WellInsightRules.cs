@@ -1,6 +1,6 @@
 ﻿using WellInsightEngine.Core.Features.WellMetrics;
 
-namespace WellInsightEngine.Core.Features.WellInsights.GenerateWellInsight.Ai;
+namespace WellInsightEngine.Core.Services.WellInsightsAi;
 
 public static class WellInsightRules
 {

@@ -44,7 +44,6 @@ public class FilterWellMetricsRequest : IValidatableObject
 
 public sealed class Aggregation
 {       
-    [JsonConverter(typeof(DescriptionEnumJsonConverter<GroupingInterval>))]
     public GroupingInterval Interval { get; init; }
     public AggregationType Type { get; init; }
 }

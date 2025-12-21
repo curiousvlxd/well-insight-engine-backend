@@ -2,13 +2,16 @@
 
 public sealed record WellInsightPayload
 {
-    public required IReadOnlyList<WellInsightParameter> Parameters { get; init; }
+    public required IReadOnlyList<WellInsightAggregation> Aggregations { get; init; }
     public required IReadOnlyList<WellInsightKpi> Kpis { get; init; }
-    
-    public static WellInsightPayload Create(IReadOnlyList<WellInsightParameter> series, IReadOnlyList<WellInsightKpi> kpis)
-        => new()
+
+    public static WellInsightPayload Create(IEnumerable<WellInsightAggregation> aggregations)
+    {
+        var items = aggregations.ToList();
+        return new WellInsightPayload
         {
-            Parameters = series,
-            Kpis = kpis
+            Aggregations = items,
+            Kpis = WellInsightKpi.BuildKpis(items)
         };
+    }
 }

@@ -1,11 +1,10 @@
-﻿using System.Globalization;
-using System.Text;
+﻿using System.Text;
 using WellInsightEngine.Core.Entities;
 using WellInsightEngine.Core.Entities.WellInsight.Payload;
 using WellInsightEngine.Core.Extensions;
 using WellInsightEngine.Core.Features.WellMetrics;
 
-namespace WellInsightEngine.Core.Features.WellInsights.GenerateWellInsight.Ai;
+namespace WellInsightEngine.Core.Services.WellInsightsAi;
 
 public static class WellInsightPromptBuilder
 {
@@ -45,37 +44,47 @@ public static class WellInsightPromptBuilder
         sb.AppendLine($"Кількість подій (well actions): {actions.Count}");
         sb.AppendLine();
         sb.AppendLine("Серії (time series):");
-        foreach (var s in payload.Parameters)
-        {
-            var pointsCount = s.Metrics.Count;
-            var (firstTs, firstVal) = FirstParameter(s);
-            var (lastTs, lastVal) = LastParameter(s);
 
-            sb.AppendLine(
-                $"- {s.Name} | тип={s.DataType} | агрегація={s.Aggregation} | points={pointsCount} | " +
-                $"first=({firstTs},{firstVal}) | last=({lastTs},{lastVal})");
+        foreach (var g in payload.Aggregations)
+        {
+            sb.AppendLine($"Група: тип={g.DataType} | агрегація={g.Aggregation} | параметрів={g.Parameters.Count}");
+
+            foreach (var p in g.Parameters)
+            {
+                var pointsCount = p.DateTicks.Count;
+                var (firstTs, firstVal) = First(p);
+                var (lastTs, lastVal) = Last(p);
+
+                sb.AppendLine(
+                    $"- {p.ParameterName} | parameterId={p.ParameterId} | points={pointsCount} | " +
+                    $"first=({firstTs},{firstVal}) | last=({lastTs},{lastVal})");
+            }
         }
 
         sb.AppendLine();
         sb.AppendLine("Останні події:");
         foreach (var a in actions.Take(30))
-            sb.AppendLine($"- {a.Timestamp:O} | {a.Title} | {a.Details}");
+            sb.AppendLine($"- {a.Timestamp:O} | {Safe(a.Title) ?? "n/a"} | {Safe(a.Details) ?? string.Empty}");
 
         return sb.ToString();
     }
 
-    private static (string Ts, string Val) FirstParameter(WellInsightParameter s)
+    private static (string Ts, string Val) First(WellInsightParameter p)
     {
-        if (s.Metrics.Count == 0) return ("n/a", "n/a");
-        var p = s.Metrics[0];
-        return (p.Timestamp.ToString("O", CultureInfo.InvariantCulture), Safe(p.Value) ?? "n/a");
+        if (p.DateTicks.Count == 0)
+            return ("n/a", "n/a");
+
+        var t = p.DateTicks[0];
+        return (t.Timestamp.ToString("O"), Safe(t.Value) ?? "n/a");
     }
 
-    private static (string Ts, string Val) LastParameter(WellInsightParameter s)
+    private static (string Ts, string Val) Last(WellInsightParameter p)
     {
-        if (s.Metrics.Count == 0) return ("n/a", "n/a");
-        var p = s.Metrics[^1];
-        return (p.Timestamp.ToString("O", CultureInfo.InvariantCulture), Safe(p.Value) ?? "n/a");
+        if (p.DateTicks.Count == 0)
+            return ("n/a", "n/a");
+
+        var t = p.DateTicks[^1];
+        return (t.Timestamp.ToString("O"), Safe(t.Value) ?? "n/a");
     }
 
     private static string? Safe(string? s) => string.IsNullOrWhiteSpace(s) ? null : s.Trim();

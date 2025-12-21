@@ -16,14 +16,9 @@ public sealed class GenerateWellInsightRequest : IValidatableObject
     [Required]
     public DateTimeOffset To { get; init; }
 
-    public int MaxMetrics { get; init; } = 500;
-
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         if (From >= To)
             yield return new ValidationResult("'From' must be earlier than 'To'", [nameof(From), nameof(To)]);
-
-        if (MaxMetrics <= 0)
-            yield return new ValidationResult("'MaxPointsPerSeries' must be greater than 0", [nameof(MaxMetrics)]);
     }
 }

@@ -13,7 +13,7 @@ public sealed class DescriptionEnumJsonConverter<TEnum> : JsonConverter<TEnum>
             .Select(v => new
             {
                 Value = v,
-                Description = typeof(TEnum)
+                typeof(TEnum)
                     .GetField(v.ToString())?
                     .GetCustomAttribute<DescriptionAttribute>()?
                     .Description

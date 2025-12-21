@@ -1,27 +1,18 @@
-﻿using WellInsightEngine.Core.Enums;
-
-namespace WellInsightEngine.Core.Entities.WellInsight.Payload;
+﻿namespace WellInsightEngine.Core.Entities.WellInsight.Payload;
 
 public sealed record WellInsightParameter
 {
-    public Guid ParameterId { get; init; }
-    public string Name { get; init; }
-    public ParameterDataType DataType { get; init; }
-    public IReadOnlyList<WellInsightMetric> Metrics { get; init; } = [];
-    public AggregationType Aggregation { get; init; }
+    public required Guid WellId { get; init; }
+    public required Guid ParameterId { get; init; }
+    public required string ParameterName { get; init; }
+    public required IReadOnlyList<WellInsightMetric> DateTicks { get; init; }
     
-    public static WellInsightParameter Create(
-        Guid parameterId,
-        string name,
-        ParameterDataType dataType,
-        IReadOnlyList<WellInsightMetric> metrics,
-        AggregationType aggregation)
+    public static WellInsightParameter Create(Guid wellId, Guid parameterId, string parameterName, IReadOnlyList<WellInsightMetric> dateTicks)
         => new()
         {
+            WellId = wellId,
             ParameterId = parameterId,
-            Name = name,
-            DataType = dataType,
-            Metrics = metrics,
-            Aggregation = aggregation
+            ParameterName = parameterName,
+            DateTicks = dateTicks
         };
 }

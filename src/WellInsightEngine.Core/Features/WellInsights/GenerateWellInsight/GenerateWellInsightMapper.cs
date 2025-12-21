@@ -1,5 +1,6 @@
 ﻿using Riok.Mapperly.Abstractions;
 using WellInsightEngine.Core.Abstractions.Services.Ai.Contracts;
+using WellInsightEngine.Core.Abstractions.Services.WellInsightsAi.Contracts;
 using WellInsightEngine.Core.Entities;
 using WellInsightEngine.Core.Features.WellInsights.GenerateWellInsight.Ai;
 

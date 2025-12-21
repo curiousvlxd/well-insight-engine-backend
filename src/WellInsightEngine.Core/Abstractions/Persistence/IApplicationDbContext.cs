@@ -11,9 +11,11 @@ public interface IApplicationDbContext
     IQueryable<Parameter> Parameters { get; }
     DatabaseFacade Database { get; }
     IQueryable<WellParameter> WellParameters { get; }
+    IQueryable<WellInsightAction> WellInsightActions { get; }
     IQueryable<WellAction> WellActions { get; }
     IQueryable<WellInsight> WellInsights { get; }
     void Add<TEntity>(TEntity entity) where TEntity : class;
     void AddRange<TEntity>(List<TEntity> entitis) where TEntity : class;
+    Task BulkInsertAsync<TEntity>(List<TEntity> entities, CancellationToken cancellation = default) where TEntity : class;
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }
