@@ -32,10 +32,26 @@ public static class WellInsightPromptBuilder
             - Пиши українською.
             - Заголовок має містити назву свердловини і (за наявності) Ассет.
             - Summary: 2–4 речення.
-            - highlights: 4–7 пунктів, тільки факт/спостереження.
+            - highlights: 4–7 пунктів, тільки факт або спостереження.
+              - РІВНО 1 пункт може бути про KPI.
+              - KPI-пункт ОБОВʼЯЗКОВО в одному рядку.
+              - Формат KPI-пункту:
+                "KPI: <метрика> <last> (<trend%>); <метрика> <last> (<trend%>); ..."
+            - Інші highlights НЕ повинні бути про KPI.
+              Використовуй: події, режими роботи, стабільність сигналу,
+              різкі зміни, плато, пропуски даних, аномалії.
             - suspicions: 2–5 обережних гіпотез, без вигадування даних.
-            - recommendedActions: 4–7 чітких кроків.
-        """);
+            - recommendedActions: 4–7 чітких і практичних кроків.
+            
+            - Якщо у часових рядах НЕМАЄ даних (усі points=0):
+            - summary має прямо сказати, що телеметрія відсутня і аналіз трендів/аномалій неможливий.
+            - highlights: 3–5 пунктів ТІЛЬКИ про факт відсутності даних/покриття/вікно часу/події (без "зросло/знизилось").
+            - KPI-пункт:
+              - або ВЗАГАЛІ не додавай KPI-пункт,
+              - або (якщо він є) кожен KPI має бути тільки "n/a" без відсотків/трендів.
+            - suspicions: максимум 1–2 короткі гіпотези, тільки про pipeline/сенсори/конфіг/фільтри часу, без тверджень про роботу свердловини.
+            - recommendedActions: 4–7 кроків, сфокусовані на перевірці збору даних (сенсор, інжест, мапінг параметрів, часові фільтри, доступи).
+            """);
 
         sb.AppendLine($"Ассет: {Safe(assetName) ?? "Н/Д"}");
         sb.AppendLine($"Свердловина: {wellName}");
@@ -43,8 +59,8 @@ public static class WellInsightPromptBuilder
         sb.AppendLine($"Інтервал агрегації: {interval.GetDescription()}");
         sb.AppendLine($"Кількість подій (well actions): {actions.Count}");
         sb.AppendLine();
-        sb.AppendLine("Серії (time series):");
 
+        sb.AppendLine("Серії (time series):");
         foreach (var g in payload.Aggregations)
         {
             sb.AppendLine($"Група: тип={g.DataType} | агрегація={g.Aggregation} | параметрів={g.Parameters.Count}");
@@ -58,6 +74,18 @@ public static class WellInsightPromptBuilder
                 sb.AppendLine(
                     $"- {p.ParameterName} | parameterId={p.ParameterId} | points={pointsCount} | " +
                     $"first=({firstTs},{firstVal}) | last=({lastTs},{lastVal})");
+            }
+        }
+
+        if (payload.Kpis.Count > 0)
+        {
+            sb.AppendLine();
+            sb.AppendLine("KPI (обчислені):");
+            foreach (var g in payload.Kpis)
+            {
+                sb.AppendLine($"- parameterId={g.ParameterId} | name={Safe(g.Name) ?? "n/a"} | agg={g.Aggregation}");
+                foreach (var k in g.Items) 
+                    sb.AppendLine($"  - kind={k.Kind.GetDescription()} | value={Safe(k.Value) ?? "n/a"}");
             }
         }
 

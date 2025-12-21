@@ -28,7 +28,6 @@ public sealed class GenerateWellInsightFeature(ISqlConnectionFactory sqlFactory,
         var plan = wellInsightsAi.ResolvePlan(fromUtc, toUtc);
         var series = await FetchSeriesAsync(plan, request.WellId, request.ParameterIds, fromUtc, toUtc, parameterMap, cancellation);
         var payload = WellInsightPayload.Create(series);
-
         var aiRequest = GenerateWellInsightAiRequest.Create(well, fromUtc, toUtc, plan.GroupingInterval, payload, actions);
         var ai = await wellInsightsAi.GenerateAsync(aiRequest, cancellation);
         var insight = WellInsight.Create(slugService, plan.GroupingInterval, well.Id, fromUtc, toUtc, ai.Envelope.Title, ai.Envelope.Summary, ai.Envelope.Highlights, ai.Envelope.Suspicions, ai.Envelope.RecommendedActions, ai.Payload);
