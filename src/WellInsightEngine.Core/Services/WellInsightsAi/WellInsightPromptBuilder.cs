@@ -63,7 +63,7 @@ public static class WellInsightPromptBuilder
 
         sb.AppendLine();
         sb.AppendLine("Останні події:");
-        foreach (var a in actions.Take(30))
+        foreach (var a in actions)
             sb.AppendLine($"- {a.Timestamp:O} | {Safe(a.Title) ?? "n/a"} | {Safe(a.Details) ?? string.Empty}");
 
         return sb.ToString();

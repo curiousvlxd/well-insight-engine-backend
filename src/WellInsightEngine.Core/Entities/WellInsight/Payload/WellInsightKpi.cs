@@ -6,15 +6,17 @@ namespace WellInsightEngine.Core.Entities.WellInsight.Payload;
 public sealed record WellInsightKpi
 {
     public required Guid ParameterId { get; init; }
-    public required WellInsightMetricKind Kind { get; init; }
+    public WellInsightMetricKind Kind { get; init; }
+    public AggregationType Aggregation { get; init; }
     public required string Name { get; init; }
     public required string Value { get; init; }
     public string? Change { get; init; }
 
-    public static WellInsightKpi Create(Guid parameterId, WellInsightMetricKind kind, string name, string value, string? change)
+    public static WellInsightKpi Create(Guid parameterId, AggregationType aggregation, WellInsightMetricKind kind, string name, string value, string? change)
         => new()
         {
             ParameterId = parameterId,
+            Aggregation = aggregation,
             Kind = kind,
             Name = name,
             Value = value,
@@ -42,12 +44,7 @@ public sealed record WellInsightKpi
                     && decimal.TryParse(last, NumberStyles.Any, CultureInfo.InvariantCulture, out var l))
                     change = (l - f).ToString(CultureInfo.InvariantCulture);
 
-                result.Add(Create(
-                    p.ParameterId,
-                    WellInsightMetricKind.Last,
-                    $"{p.ParameterName} [{g.Aggregation}]",
-                    last,
-                    change));
+                result.Add(Create(p.ParameterId, g.Aggregation, WellInsightMetricKind.Last, p.ParameterName, last, change));
             }
         }
 

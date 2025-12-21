@@ -7,6 +7,6 @@ public sealed class WellInsightsAiOptionsSetup(IConfiguration configuration) : I
 {
     public void Configure(WellInsightsAiOptions options)
     {
-        configuration.GetSection(" WellInsightsAi").Bind(options);
+        configuration.GetSection("WellInsightsAi").Bind(options);
     }
 }

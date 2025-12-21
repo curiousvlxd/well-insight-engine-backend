@@ -17,14 +17,6 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<WellInsightAction> WellInsightActions => Set<WellInsightAction>();
     void IApplicationDbContext.Add<TEntity>(TEntity entity) => Set<TEntity>().Add(entity);
     void IApplicationDbContext.AddRange<TEntity>(List<TEntity> entities) => Set<TEntity>().AddRange(entities);
-    async Task IApplicationDbContext.BulkInsertAsync<TEntity>(List<TEntity> entities, CancellationToken cancellation)
-        where TEntity : class
-    {
-        if (entities.Count == 0)
-            return;
-
-        await this.BulkInsertAsync(entities, cancellationToken: cancellation);
-    }
     IQueryable<Asset> IApplicationDbContext.Assets => Assets;
     IQueryable<Well> IApplicationDbContext.Wells => Wells;
     IQueryable<WellInsightAction> IApplicationDbContext.WellInsightActions => Set<WellInsightAction>();

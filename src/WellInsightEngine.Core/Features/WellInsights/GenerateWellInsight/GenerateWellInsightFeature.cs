@@ -1,7 +1,6 @@
 ﻿using System.Globalization;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using WellInsightEngine.Core.Abstractions.Persistence;
 using WellInsightEngine.Core.Abstractions.Services.Slug;
 using WellInsightEngine.Core.Abstractions.Services.WellInsightsAi;
@@ -11,18 +10,11 @@ using WellInsightEngine.Core.Entities.WellInsight;
 using WellInsightEngine.Core.Entities.WellInsight.Payload;
 using WellInsightEngine.Core.Enums;
 using WellInsightEngine.Core.Features.WellInsights.Common;
-using WellInsightEngine.Core.Features.WellInsights.GenerateWellInsight.Ai;
-using WellInsightEngine.Core.Features.WellInsights.GenerateWellInsight.Ai.Options;
 using WellInsightEngine.Core.Services.WellInsightsAi;
 
 namespace WellInsightEngine.Core.Features.WellInsights.GenerateWellInsight;
 
-public sealed class GenerateWellInsightFeature(
-    ISqlConnectionFactory sqlFactory,
-    ISlugService slugService,
-    IApplicationDbContext context,
-    IWellInsightsAiService wellInsightsAi,
-    IOptions<WellInsightsAiOptions> options)
+public sealed class GenerateWellInsightFeature(ISqlConnectionFactory sqlFactory, ISlugService slugService, IApplicationDbContext context, IWellInsightsAiService wellInsightsAi)
 {
     public async Task<WellInsightResponse> Handle(GenerateWellInsightRequest request, CancellationToken cancellation)
     {
@@ -44,8 +36,8 @@ public sealed class GenerateWellInsightFeature(
         var links = ai.Actions
             .Select(a => WellInsightAction.Create(insight.Id, a.Id))
             .ToList();
+        context.AddRange(links);
         await context.SaveChangesAsync(cancellation);
-        await context.BulkInsertAsync(links);
         return WellInsightResponseMapper.Map(insight);
     }
 
