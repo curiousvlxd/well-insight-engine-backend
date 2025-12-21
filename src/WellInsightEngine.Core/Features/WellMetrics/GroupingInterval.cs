@@ -1,6 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Text.Json.Serialization;
-using WellInsightEngine.Core.Converters;
 
 namespace WellInsightEngine.Core.Features.WellMetrics;
 

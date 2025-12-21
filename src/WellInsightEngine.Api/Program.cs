@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Scalar.AspNetCore;
 using WellInsightEngine.Api.OpenApi;
 using WellInsightEngine.Core;
-using WellInsightEngine.Core.Converters;
-using WellInsightEngine.Core.Features.WellMetrics;
 using WellInsightEngine.Infrastructure;
 using WellInsightEngine.Infrastructure.Extensions;
 
@@ -18,10 +16,11 @@ builder.Services.Configure<ForwardedHeadersOptions>(o =>
 });
 builder.Services.AddControllers()
     .AddJsonOptions(o =>
-    {
+    {   
+        o.JsonSerializerOptions.Converters.Add(new DescriptionEnumJsonConverter());
         o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-        o.JsonSerializerOptions.Converters.Add(new DescriptionEnumJsonConverter<GroupingInterval>());
-    });
+    }
+   );
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi(options =>
 {

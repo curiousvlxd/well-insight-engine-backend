@@ -1,6 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
-using WellInsightEngine.Core.Converters;
 using WellInsightEngine.Core.Enums;
 
 namespace WellInsightEngine.Core.Features.WellMetrics.FilterWellMetrics;
