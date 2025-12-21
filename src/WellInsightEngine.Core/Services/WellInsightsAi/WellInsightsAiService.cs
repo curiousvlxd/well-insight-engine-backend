@@ -6,7 +6,6 @@ using WellInsightEngine.Core.Entities;
 using WellInsightEngine.Core.Entities.WellInsight.Payload;
 using WellInsightEngine.Core.Features.WellInsights.GenerateWellInsight;
 using WellInsightEngine.Core.Features.WellInsights.GenerateWellInsight.Ai.Options;
-using WellInsightEngine.Core.Features.WellMetrics;
 
 namespace WellInsightEngine.Core.Services.WellInsightsAi;
 
