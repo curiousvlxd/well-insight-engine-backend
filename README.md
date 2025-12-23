@@ -2,6 +2,8 @@
 
 WellInsightEngine is a system for generating engineering insights for gas wells based on historical telemetry data, recorded incidents/actions, and cleaned time-series technical parameters.
 
+This project was presented at the **DEV Challenge hackathon**, organized by **MODUS X** and **DTEK**.
+
 The solution uses AI to analyze the current state of a well in the context of known engineering cases.  
 The system compares parameter dynamics with similar situations from a historical dataset and produces a clear engineering insight: what is happening, which past cases it resembles, and what actions may be appropriate.
 
